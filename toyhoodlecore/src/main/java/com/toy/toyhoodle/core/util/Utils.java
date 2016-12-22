@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
  * Created by ljx on 2016/12/22.
  */
 public class Utils {
-    public static Map<String, Object> getSystemProperties() {
+    public static Map<String, String> getSystemProperties() {
         Set<String> keyset = System.getProperties().stringPropertyNames();
-        Map<String, Object> systemProperties =
+        Map<String, String> systemProperties =
                 keyset.stream().collect(Collectors.toMap(key -> key, key -> System.getProperty(key)));
         return systemProperties;
     }
