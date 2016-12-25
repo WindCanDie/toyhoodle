@@ -1,6 +1,7 @@
 import com.toy.toyhoodle.core.util.Utils;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -10,10 +11,23 @@ import java.util.Map;
 
 public class UtilsTest {
     @Test
-    public void sysProperties() {
+    public void sysPropertiesTest() {
         long time = System.currentTimeMillis();
-        Map<String, Object> map = Utils.getSystemProperties();
+        Map<String, String> map = Utils.getSystemProperties();
         System.out.println(System.currentTimeMillis() - time);
         System.out.print(map);
+    }
+
+    @Test
+    public void getClassPathTest() {
+        System.out.print(Utils.getClassPath());
+    }
+
+    @Test
+    public void intTets() {
+        int a = 1;
+        Map<String, Object> aa = new HashMap<>();
+        aa.put("a", 1);
+        System.out.print(aa.get("a").toString());
     }
 }

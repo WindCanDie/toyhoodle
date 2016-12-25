@@ -15,4 +15,8 @@ public class Utils {
                 keyset.stream().collect(Collectors.toMap(key -> key, key -> System.getProperty(key)));
         return systemProperties;
     }
+
+    public static String getClassPath() {
+        return Utils.class.getClassLoader().getResource("").getPath();
+    }
 }

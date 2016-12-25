@@ -2,6 +2,7 @@ package com.toy.toyhoodle.core.conf;
 
 /**
  * Created by ljx on 2016/12/22.
+ *
  */
 public class ConfigReader {
     public static String getSystemConfig(String key) {
@@ -12,7 +13,7 @@ public class ConfigReader {
         return System.getenv(key);
     }
 
-    public static String getdefaultConfig(String key) {
+    public static String getFieldConfig(String key) {
         return DefaultConfig.get(key);
     }
 }
