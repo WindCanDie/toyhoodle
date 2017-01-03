@@ -19,4 +19,5 @@ public class Utils {
     public static String getClassPath() {
         return Utils.class.getClassLoader().getResource("").getPath();
     }
+
 }

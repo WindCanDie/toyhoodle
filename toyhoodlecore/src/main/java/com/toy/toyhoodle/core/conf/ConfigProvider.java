@@ -13,6 +13,8 @@ import java.util.Properties;
  * Created by ljx on 2016/12/25.
  */
 interface ConfigProvider {
+    String CONFIGFILE = "hoodle.property";
+
     public class EvnConfig implements ConfigProvider {
         public String getEnvConfig(String key) {
             return System.getenv(key);
@@ -25,16 +27,23 @@ interface ConfigProvider {
         }
     }
 
-    public class fileConfig implements ConfigProvider {
-        public static final String CONFIGFILE = "/conf/hoodle.property";
-        public static Map<Object, Object> conf = null;
+
+    public class MapConfig implements ConfigProvider {
+        private static Map<Object, Object> confFile = null;
+        private Map<Object, Object> mergeConf = null;
+
+        public MapConfig(Map map) {
+            if (confFile == null) lodefile();
+            mergeConf = confFile;
+            mergeConf.putAll(map);
+        }
 
         public Object getConfig(String key) {
-            return conf.get(key);
+            return mergeConf.get(key);
         }
 
         public long getConfigToLong(String key) {
-            Object f = conf.get(key);
+            Object f = mergeConf.get(key);
             if (f instanceof String)
                 return Long.parseLong((String) f);
             else
@@ -42,23 +51,28 @@ interface ConfigProvider {
         }
 
         public int getConfigTOInt(String key) {
-            Object f = conf.get(key);
+            Object f = mergeConf.get(key);
             return Integer.parseInt(f.toString());
         }
 
+        public double getConfigTODouble(String key) {
+            Object f = mergeConf.get(key);
+            return Double.parseDouble(f.toString());
+        }
+
         public String getConfigTOString(String key) {
-            return conf.get(key).toString();
+            return mergeConf.get(key).toString();
         }
 
 
-        public void lodefile() {
+        private synchronized static void lodefile() {
             String path = Utils.getClassPath();
             String filepath = path + CONFIGFILE;
             File file = new File(filepath);
             try (FileInputStream fileInputStream = new FileInputStream(file)) {
                 Properties properties = new Properties();
                 properties.load(fileInputStream);
-                conf = new HashMap<>(properties);
+                confFile = new HashMap<>(properties);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -2,6 +2,7 @@ import com.toy.toyhoodle.core.util.Utils;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,5 +30,6 @@ public class UtilsTest {
         Map<String, Object> aa = new HashMap<>();
         aa.put("a", 1);
         System.out.print(aa.get("a").toString());
+        List list;
     }
 }
