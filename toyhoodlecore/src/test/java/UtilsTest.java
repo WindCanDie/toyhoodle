@@ -22,14 +22,21 @@ public class UtilsTest {
     @Test
     public void getClassPathTest() {
         System.out.print(Utils.getClassPath());
+        System.out.print(Utils.getClassPath());
     }
 
     @Test
-    public void intTets() {
+    public void intTest() {
         int a = 1;
         Map<String, Object> aa = new HashMap<>();
         aa.put("a", 1);
         System.out.print(aa.get("a").toString());
         List list;
+    }
+
+    @Test
+    public void ipTest() {
+        String ip = Utils.getLocalHost();
+        System.out.print(ip);
     }
 }

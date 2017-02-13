@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Created by ljx on 2016/12/25.
  */
-interface ConfigProvider {
+public interface ConfigProvider {
     String CONFIGFILE = "hoodle.property";
 
     public class EvnConfig implements ConfigProvider {
@@ -31,11 +31,19 @@ interface ConfigProvider {
     public class MapConfig implements ConfigProvider {
         private static Map<Object, Object> confFile = null;
         private Map<Object, Object> mergeConf = null;
-
-        public MapConfig(Map map) {
+        static {
             if (confFile == null) lodefile();
+        }
+        public MapConfig(){
+            mergeConf = confFile;
+        }
+        public MapConfig(Map map) {
             mergeConf = confFile;
             mergeConf.putAll(map);
+        }
+
+        public Map<Object,Object> getAllConf(){
+            return mergeConf;
         }
 
         public Object getConfig(String key) {

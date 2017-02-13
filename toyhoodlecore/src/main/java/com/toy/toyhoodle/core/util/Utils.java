@@ -1,6 +1,8 @@
 package com.toy.toyhoodle.core.util;
 
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,4 +22,13 @@ public class Utils {
         return Utils.class.getClassLoader().getResource("").getPath();
     }
 
+    public static String getLocalHost() {
+        String ip = null;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return ip;
+    }
 }
