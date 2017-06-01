@@ -19,7 +19,7 @@ public abstract class RpcEnv {
     }
 
     public static RpcEnv create(String name, String host, int prot) {
-        return new NettyRpcEnv(name, host, prot).build();
+        return new NettyRpcEnv(name, host, prot);
     }
 
     public abstract RpcEndpointRef endpointRef(RpcEndpoint endpoint);
@@ -42,7 +42,7 @@ public abstract class RpcEnv {
      */
     public abstract RpcEndpointRef setupEndpointRefByURI(String uri);
 
-    public abstract RpcEndpointRef setupEndpointRefByURI(RpcAdress asress, String name);
+    public abstract RpcEndpointRef setupEndpointRefByURI(RpcAddress asress, String name);
 
     public abstract void stop(RpcEndpoint endpoint);
 

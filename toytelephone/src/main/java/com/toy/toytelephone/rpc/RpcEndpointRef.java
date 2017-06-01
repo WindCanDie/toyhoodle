@@ -5,7 +5,7 @@ package com.toy.toytelephone.rpc;
  * @date 2017.05.31
  */
 public abstract class RpcEndpointRef {
-    protected RpcAdress address;
+    protected RpcAddress address;
     protected String name;
 
     public abstract void send(Object obj);
