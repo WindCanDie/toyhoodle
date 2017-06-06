@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class TransportClientFactory {
     private final TransportContext context;
-    private final int timeoutMillis = 30;
+    private final int timeoutMillis = 300000;
     private final int enventLoopThreadNum = 4;
 
     public TransportClientFactory(TransportContext transportClient) {
@@ -26,7 +26,7 @@ public class TransportClientFactory {
     }
 
     public TransportClient createClient(String remoteHost, int remotePort) throws InterruptedException, IOException {
-        InetSocketAddress address = InetSocketAddress.createUnresolved(remoteHost, remotePort);
+        InetSocketAddress address = new InetSocketAddress(remoteHost, remotePort);
         Bootstrap bootstrap = new Bootstrap()
                 .group(new NioEventLoopGroup(enventLoopThreadNum))
                 .channel(NioSocketChannel.class)
@@ -50,9 +50,8 @@ public class TransportClientFactory {
         } else if (cf.cause() != null) {
             throw new IOException(String.format("Failed to  connect to %s", address), cf.cause());
         }
-
-        TransportClient client = new TransportClient(channel.get());
-
+        TransportClient client = new
+                TransportClient(channel.get());
         return client;
     }
 
