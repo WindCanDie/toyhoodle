@@ -50,8 +50,7 @@ public class TransportClientFactory {
         } else if (cf.cause() != null) {
             throw new IOException(String.format("Failed to  connect to %s", address), cf.cause());
         }
-        TransportClient client = new
-                TransportClient(channel.get());
+        TransportClient client = new TransportClient(channel.get());
         return client;
     }
 
