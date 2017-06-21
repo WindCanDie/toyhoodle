@@ -7,13 +7,11 @@ import java.nio.ByteBuffer;
  * on 2017/6/16.
  */
 public class NioMessageBuffer extends MessageBuffer {
-    private final ByteBuffer buf;
-
     public NioMessageBuffer(ByteBuffer buf) {
-        this.buf = buf;
+        super(buf);
     }
 
     public long size() {
-        return buf.remaining();
+        return super.buffer.remaining();
     }
 }

@@ -36,11 +36,13 @@ public class TransportClientFactory {
         //.option(ChannelOption.ALLOCATOR, pooledAllocator);
 
         final AtomicReference<SocketChannel> channel = new AtomicReference<>();
+        final AtomicReference<TransportClient> channel1 = new AtomicReference<>();
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
-                context.initializePipeline(ch);
+                TransportChannelHandler clientHandler = context.initializePipeline(ch);
                 channel.set(ch);
+                channel1.set(clientHandler.getClient());
             }
         });
         ChannelFuture cf = bootstrap.connect(address);
@@ -50,8 +52,7 @@ public class TransportClientFactory {
         } else if (cf.cause() != null) {
             throw new IOException(String.format("Failed to  connect to %s", address), cf.cause());
         }
-        TransportClient client = new TransportClient(channel.get());
-        return client;
+        return channel1.get();
     }
 
 }

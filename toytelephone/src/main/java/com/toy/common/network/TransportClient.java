@@ -16,6 +16,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static com.toy.common.network.util.NettyUtil.getRemoteAddress;
+
 /**
  * Created by Administrator
  * on 2017/6/2.
@@ -23,9 +25,11 @@ import java.util.concurrent.TimeUnit;
 public class TransportClient {
     private Channel channel;
     private Logger logger = LoggerFactory.getLogger(TransportClient.class);
+    TransportResponseHandler handler;
 
-    public TransportClient(Channel channel) {
+    public TransportClient(Channel channel, TransportResponseHandler responseHandler) {
         this.channel = channel;
+        this.handler = responseHandler;
     }
 
     public Channel getChannel() {
@@ -36,42 +40,38 @@ public class TransportClient {
         return channel.isOpen() || channel.isActive();
     }
 
-    public void sendRpc(ByteBuffer message,RpcResponseCallback callback) {
+    public void sendRpc(ByteBuffer message, RpcResponseCallback callback) {
         long startTime = System.currentTimeMillis();
         if (!isAction()) {
             throw new RuntimeException("channel is cloaed");
-        } else {
-            long requestId = Math.abs(UUID.randomUUID().getLeastSignificantBits());
-            channel.writeAndFlush(new RpcRequest(new NioMessageBuffer(message)))
-            .addListener(future -> {
-                if (future.isSuccess()) {
-                    long timeTaken = System.currentTimeMillis() - startTime;
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Sending request {} to {} took {} ms", requestId,
-                                getRemoteAddress(channel), timeTaken);
-                    }
-                } else {
-                    String errorMsg = String.format("Failed to send RPC %s to %s: %s", requestId,
-                            getRemoteAddress(channel), future.cause());
-                    logger.error(errorMsg, future.cause());
-                    //handler.removeRpcRequest(requestId);
-                    channel.close();
-                    try {
-                        callback.onFailure(new IOException(errorMsg, future.cause()));
-                    } catch (Exception e) {
-                        logger.error("Uncaught exception in RPC response callback handler!", e);
-                    }
-                }
-            });
         }
+        long requestId = Math.abs(UUID.randomUUID().getLeastSignificantBits());
+        handler.addRpcRequest(requestId, callback);
+        channel.writeAndFlush(new RpcRequest(new NioMessageBuffer(message)))
+                .addListener(future -> {
+                    if (future.isSuccess()) {
+                        long timeTaken = System.currentTimeMillis() - startTime;
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("Sending request {} to {} took {} ms", requestId,
+                                    getRemoteAddress(channel), timeTaken);
+                        }
+                    } else {
+                        String errorMsg = String.format("Failed to send RPC %s to %s: %s", requestId,
+                                getRemoteAddress(channel), future.cause());
+                        logger.error(errorMsg, future.cause());
+                        //handler.removeRpcRequest(requestId);
+                        channel.close();
+                        try {
+                            callback.onFailure(new IOException(errorMsg, future.cause()));
+                        } catch (Exception e) {
+                            logger.error("Uncaught exception in RPC response callback handler!", e);
+                        }
+                    }
+                });
+
     }
-    /** Returns the remote address on the channel or "&lt;unknown remote&gt;" if none exists. */
-    public static String getRemoteAddress(Channel channel) {
-        if (channel != null && channel.remoteAddress() != null) {
-            return channel.remoteAddress().toString();
-        }
-        return "<unknown remote>";
-    }
+
+
     public ByteBuffer sendRpcSync(ByteBuffer message, long timeoutMs) {
         final SettableFuture<ByteBuffer> result = SettableFuture.create();
 
