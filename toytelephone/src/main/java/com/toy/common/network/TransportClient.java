@@ -26,10 +26,12 @@ public class TransportClient {
     private Channel channel;
     private Logger logger = LoggerFactory.getLogger(TransportClient.class);
     TransportResponseHandler handler;
+    private volatile boolean timedOut;
 
     public TransportClient(Channel channel, TransportResponseHandler responseHandler) {
         this.channel = channel;
         this.handler = responseHandler;
+        timedOut = false;
     }
 
     public Channel getChannel() {
@@ -37,7 +39,7 @@ public class TransportClient {
     }
 
     public boolean isAction() {
-        return channel.isOpen() || channel.isActive();
+        return !this.timedOut && (channel.isOpen() || channel.isActive());
     }
 
     public void sendRpc(ByteBuffer message, RpcResponseCallback callback) {
@@ -110,5 +112,8 @@ public class TransportClient {
         channel.writeAndFlush(new OneWayMessage(new NioMessageBuffer(message)));
     }
 
+    public void timeOut() {
+        this.timedOut = true;
+    }
 
 }

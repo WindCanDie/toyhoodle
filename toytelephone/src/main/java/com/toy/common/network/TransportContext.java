@@ -12,8 +12,24 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
  */
 public class TransportContext {
 
+    private final RpcHandler rpcHandler;
+    private final boolean closeIdleConnections;
+
+    public TransportContext(RpcHandler rpcHandler) {
+        this(rpcHandler, true);
+    }
+
+    public TransportContext(RpcHandler rpcHandler, boolean closeIdleConnections) {
+        this.rpcHandler = rpcHandler;
+        this.closeIdleConnections = closeIdleConnections;
+    }
+
     public TransportChannelHandler initializePipeline(SocketChannel channel) {
-        TransportChannelHandler channelHandler = createChannelHandler(channel);
+        return initializePipeline(channel, rpcHandler);
+    }
+
+    public TransportChannelHandler initializePipeline(SocketChannel channel, RpcHandler rpcHandler) {
+        TransportChannelHandler channelHandler = createChannelHandler(channel, rpcHandler);
         channel.pipeline().addLast("decoder", new ObjectDecoder(1024 * 1024,
                 ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
         //添加对象编码器 在服务器对外发送消息的时候自动将实现序列化的POJO对象编码
@@ -22,11 +38,11 @@ public class TransportContext {
         return channelHandler;
     }
 
-    private TransportChannelHandler createChannelHandler(Channel channel) {
+    private TransportChannelHandler createChannelHandler(Channel channel, RpcHandler rpcHandler) {
         TransportResponseHandler responseHandler = new TransportResponseHandler(channel);
         TransportClient client = new TransportClient(channel, responseHandler);
-        TransportRequestHandler requestHandler = new TransportRequestHandler(channel, client);
-        return new TransportChannelHandler(client, responseHandler, requestHandler);
+        TransportRequestHandler requestHandler = new TransportRequestHandler(channel, client, rpcHandler);
+        return new TransportChannelHandler(client, requestHandler, responseHandler, this.closeIdleConnections);
     }
 
 }

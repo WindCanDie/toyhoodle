@@ -9,8 +9,15 @@ import io.netty.channel.Channel;
  * 2017/6/21.
  */
 public class TransportRequestHandler implements MessageHandler<RequestMessage> {
-    public TransportRequestHandler(Channel channel, TransportClient client) {
+    private final RpcHandler rpcHandler;
+    private final Channel channel;
+    private final TransportClient client;
 
+
+    public TransportRequestHandler(Channel channel, TransportClient client, RpcHandler rpcHandler) {
+        this.rpcHandler = rpcHandler;
+        this.channel = channel;
+        this.client = client;
     }
 
     @Override
@@ -20,16 +27,17 @@ public class TransportRequestHandler implements MessageHandler<RequestMessage> {
 
     @Override
     public void channelActive() {
-
+        this.rpcHandler.channelActive(this.client);
     }
 
     @Override
     public void exceptionCaught(Throwable cause) {
-
+        this.rpcHandler.exceptionCaught(cause, this.client);
     }
 
     @Override
     public void channelInactive() {
-
+        this.rpcHandler.channelInactive(this.client);
     }
+
 }

@@ -2,8 +2,11 @@ package com.toy.common.network;
 
 import com.toy.common.message.RequestMessage;
 import com.toy.common.message.ResponseMessage;
+import com.toy.common.network.util.NettyUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,49 +18,43 @@ import static com.toy.common.network.util.NettyUtil.getRemoteAddress;
  */
 public class TransportChannelHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(TransportChannelHandler.class);
-    private TransportClient client;
-    private TransportRequestHandler requestHandler;
-    private TransportResponseHandler responseHandler;
+    private final TransportClient client;
+    private final TransportRequestHandler requestHandler;
+    private final TransportResponseHandler responseHandler;
+    private final long requestTimeoutNs;
+    private final long confrequestTimeoutMs = 120L;
+    private final boolean closeIdleConnections;
 
-
-    public TransportChannelHandler(TransportClient client, TransportResponseHandler responseHandler, TransportRequestHandler requestHandler) {
-
-    }
-
-    @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-    @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-
+    public TransportChannelHandler(TransportClient client, TransportRequestHandler requestHandler,
+                                   TransportResponseHandler responseHandler, boolean closeIdleConnections) {
+        this.client = client;
+        this.requestHandler = requestHandler;
+        this.responseHandler = responseHandler;
+        this.requestTimeoutNs = confrequestTimeoutMs * 1000L * 1000L;
+        this.closeIdleConnections = closeIdleConnections;
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            synchronized (this) {
+                boolean isActuallyOverdue = System.nanoTime() - this.responseHandler.getTimeOfLastRequestNs() > this.requestTimeoutNs;
+                if (e.state() == IdleState.ALL_IDLE && isActuallyOverdue) {
+                    if (this.responseHandler.numOutstandingRequests() > 0) {
+                        String address = NettyUtil.getRemoteAddress(ctx.channel());
+                        logger.error("Connection to {} has been quiet for {} ms while there are outstanding requests. Assuming connection is dead; please adjust spark.network.timeout if this is wrong.", address, Long.valueOf(this.requestTimeoutNs / 1000L / 1000L));
+                        this.client.timeOut();
+                        ctx.close();
+                    } else if (this.closeIdleConnections) {
+                        this.client.timeOut();
+                        ctx.close();
+                    }
+                }
+            }
+        }
 
-    }
-
-    @Override
-    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-
+        ctx.fireUserEventTriggered(evt);
     }
 
     @Override
