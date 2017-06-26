@@ -12,4 +12,8 @@ public class OneWayMessage implements RequestMessage {
     public OneWayMessage(MessageBuffer messageBuffer) {
         this.messageBuffer = messageBuffer;
     }
+
+    public MessageBuffer body() {
+        return messageBuffer;
+    }
 }

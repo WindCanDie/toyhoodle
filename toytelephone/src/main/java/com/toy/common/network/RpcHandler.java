@@ -13,6 +13,7 @@ public interface RpcHandler {
      * fetched by a TransportClient.
      */
     //public  StreamManager getStreamManager();
+     void receive(TransportClient client, ByteBuffer message, RpcResponseCallback callback);
 
     void receive(TransportClient client, ByteBuffer message);
 

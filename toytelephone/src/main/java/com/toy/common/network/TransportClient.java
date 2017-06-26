@@ -49,7 +49,7 @@ public class TransportClient {
         }
         long requestId = Math.abs(UUID.randomUUID().getLeastSignificantBits());
         handler.addRpcRequest(requestId, callback);
-        channel.writeAndFlush(new RpcRequest(new NioMessageBuffer(message)))
+        channel.writeAndFlush(new RpcRequest(requestId, new NioMessageBuffer(message)))
                 .addListener(future -> {
                     if (future.isSuccess()) {
                         long timeTaken = System.currentTimeMillis() - startTime;

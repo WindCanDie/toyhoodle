@@ -6,11 +6,11 @@ import com.toy.common.message.buffer.MessageBuffer;
  * Created by Administrator on
  * 2017/6/16.
  */
-public class RpcRequest implements RequestMessage {
+public class RpcResponse implements ResponseMessage {
     private final MessageBuffer messageBuffer;
     private final long requestId;
 
-    public RpcRequest(long requestId, MessageBuffer messageBuffer) {
+    public RpcResponse(long requestId, MessageBuffer messageBuffer) {
         this.messageBuffer = messageBuffer;
         this.requestId = requestId;
     }
@@ -18,7 +18,9 @@ public class RpcRequest implements RequestMessage {
     public MessageBuffer body() {
         return messageBuffer;
     }
+
     public long getRequestId() {
         return requestId;
     }
+
 }
