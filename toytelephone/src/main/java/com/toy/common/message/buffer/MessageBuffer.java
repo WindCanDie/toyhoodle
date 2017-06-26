@@ -10,14 +10,21 @@ import java.nio.ByteBuffer;
 public abstract class MessageBuffer {
     protected ByteBuffer buffer;
 
+    /**
+     * Number of bytes of the data.
+     */
+    public abstract long size();
+
     public MessageBuffer(ByteBuffer buffer) {
         this.buffer = buffer;
     }
+
     /**
      * Exposes this buffer's data as an NIO ByteBuffer. Changing the position and limit of the
      * returned ByteBuffer should not affect the content of this buffer.
      */
     public abstract ByteBuffer nioByteBuffer() throws IOException;
+
     /**
      * If applicable, decrement the reference count by one and deallocates the buffer if the
      * reference count reaches zero.
