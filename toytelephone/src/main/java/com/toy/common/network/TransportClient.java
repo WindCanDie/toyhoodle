@@ -10,6 +10,7 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -22,7 +23,7 @@ import static com.toy.common.network.util.NettyUtil.getRemoteAddress;
  * Created by Administrator
  * on 2017/6/2.
  */
-public class TransportClient {
+public class TransportClient implements Closeable {
     private Channel channel;
     private Logger logger = LoggerFactory.getLogger(TransportClient.class);
     TransportResponseHandler handler;
@@ -114,6 +115,12 @@ public class TransportClient {
 
     public void timeOut() {
         this.timedOut = true;
+    }
+
+    @Override
+    public void close() {
+        // close is a local operation and should finish with milliseconds; timeout just to be safe
+        channel.close().awaitUninterruptibly(10, TimeUnit.SECONDS);
     }
 
 }
