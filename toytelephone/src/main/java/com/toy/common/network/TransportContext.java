@@ -16,7 +16,7 @@ public class TransportContext {
     private final boolean closeIdleConnections;
 
     public TransportContext(RpcHandler rpcHandler) {
-        this(rpcHandler, true);
+        this(rpcHandler, false);
     }
 
     public TransportContext(RpcHandler rpcHandler, boolean closeIdleConnections) {

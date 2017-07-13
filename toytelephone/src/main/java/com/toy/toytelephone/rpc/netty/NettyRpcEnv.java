@@ -1,12 +1,14 @@
 package com.toy.toytelephone.rpc.netty;
 
+import com.toy.common.network.TransportClientFactory;
+import com.toy.common.network.TransportContext;
 import com.toy.toytelephone.rpc.RpcAddress;
 import com.toy.toytelephone.rpc.RpcEndpoint;
 import com.toy.toytelephone.rpc.RpcEndpointRef;
 import com.toy.toytelephone.rpc.RpcEnv;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author langjingxiang
@@ -14,7 +16,10 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class NettyRpcEnv extends RpcEnv {
     private Dispatcher dispatcher;
-
+    private TransportContext transportContext;
+    private TransportClientFactory clientFactory;
+    private AtomicBoolean stopped;
+    private ConcurrentHashMap<RpcAddress, Outbox> outboxes;
 
     public NettyRpcEnv(String name, String host, int prot) {
         super(host, name, prot);
@@ -22,7 +27,11 @@ public class NettyRpcEnv extends RpcEnv {
     }
 
     public void init() {
+        stopped = new AtomicBoolean(false);
         dispatcher = new Dispatcher(this);
+        transportContext = new TransportContext(new NettyRpcHandler());
+        clientFactory = new TransportClientFactory(transportContext);
+        outboxes = new ConcurrentHashMap<>();
     }
 
     @Override

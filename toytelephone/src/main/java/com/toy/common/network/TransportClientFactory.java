@@ -22,8 +22,8 @@ public class TransportClientFactory {
     private final int enventLoopThreadNum = 4;
 
 
-    public TransportClientFactory(TransportContext transportClient) {
-        context = transportClient;
+    public TransportClientFactory(TransportContext transportContext) {
+        context = transportContext;
     }
 
     public TransportClient createClient(String remoteHost, int remotePort) throws InterruptedException, IOException {

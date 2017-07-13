@@ -60,7 +60,6 @@ public class TransportResponseHandler implements MessageHandler<ResponseMessage>
 
     @Override
     public void channelActive() {
-
     }
 
     @Override
