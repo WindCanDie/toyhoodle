@@ -2,6 +2,7 @@ package com.toy.toytelephone.rpc.netty;
 
 import com.toy.common.thread.ThreadUtil;
 import com.toy.toytelephone.rpc.RpcEndpoint;
+import com.toy.toytelephone.rpc.RpcEndpointRef;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -17,6 +18,7 @@ public class Dispatcher {
     private int numThreads = 4;
     private ThreadPoolExecutor threadPool = ThreadUtil.newDaemonFixedThreadPool(numThreads, "dispatcher-event-loop");
     private ConcurrentMap<String, EndpointData> endpoints = new ConcurrentHashMap<>();
+    ConcurrentMap<RpcEndpoint, RpcEndpointRef> endpointRefs = new ConcurrentHashMap<>();
     private LinkedBlockingQueue<EndpointData> receivers = new LinkedBlockingQueue<>();
     private final EndpointData PoisonPill = new EndpointData(null, null, null);
     private NettyRpcEnv nettyEnv;
@@ -30,13 +32,19 @@ public class Dispatcher {
 
 
     public NettyRpcEndpointRef registerRpcEndpoint(String name, RpcEndpoint rpcEndpoint) {
-        NettyRpcEndpointRef ref = new NettyRpcEndpointRef();
+        NettyRpcAddress nettyRpcAddress = new NettyRpcAddress(nettyEnv.getAddress(),name);
+        NettyRpcEndpointRef ref = new NettyRpcEndpointRef(nettyEnv,nettyRpcAddress);
         if (endpoints.putIfAbsent(name, new EndpointData(name, rpcEndpoint, ref)) != null) {
             throw new IllegalArgumentException("This name is already exist");
         }
         EndpointData data = endpoints.get(name);
+        endpointRefs.put(data.getRpcEndpoint(), data.getRpcEndpointRef());
         receivers.offer(data);
         return ref;
+    }
+
+    public RpcEndpointRef getRpcEndpointRef(RpcEndpoint endpoint) {
+        return endpointRefs.get(endpoint);
     }
 
     private class MessageLoop implements Runnable {

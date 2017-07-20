@@ -1,4 +1,4 @@
-package com.toy.toyhoodle.core.util;
+package com.toy.util;
 
 
 import java.net.InetAddress;

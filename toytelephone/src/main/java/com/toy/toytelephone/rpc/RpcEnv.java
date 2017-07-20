@@ -8,18 +8,9 @@ import com.toy.toytelephone.rpc.netty.NettyRpcEnv;
  * @date 2017.05.31
  */
 public abstract class RpcEnv {
-    protected int prot;
-    protected String host;
-    protected String name;
-
-    protected RpcEnv(String name, String host, int prot) {
-        this.prot = prot;
-        this.host = host;
-        this.name = name;
-    }
 
     public static RpcEnv create(String name, String host, int prot) {
-        return new NettyRpcEnv(name, host, prot);
+        return new NettyRpcEnv(name, host, prot).create();
     }
 
     public abstract RpcEndpointRef endpointRef(RpcEndpoint endpoint);

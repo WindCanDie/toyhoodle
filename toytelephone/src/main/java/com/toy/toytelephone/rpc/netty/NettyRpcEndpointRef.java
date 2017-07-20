@@ -2,14 +2,25 @@ package com.toy.toytelephone.rpc.netty;
 
 import com.toy.toytelephone.rpc.RpcEndpointRef;
 
+import static com.toy.util.JudgeUtil.require;
+
 /**
  * Created by Administrator
  * on 2017/6/1.
  */
 public class NettyRpcEndpointRef extends RpcEndpointRef {
-    @Override
-    public void send(Object obj) {
+    private NettyRpcEnv nettyEnv;
+    private NettyRpcAddress nettyRpcAddress;
 
+    public NettyRpcEndpointRef(NettyRpcEnv nettyEnv, NettyRpcAddress nettyRpcAddress) {
+        this.nettyRpcAddress = nettyRpcAddress;
+        this.nettyEnv = nettyEnv;
+    }
+
+    @Override
+    public void send(Object message) {
+        require(message != null, "Message is null");
+        nettyEnv.send(new RequestMessage(nettyEnv.getAddress(), this, message));
     }
 
     @Override

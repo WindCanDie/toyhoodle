@@ -2,6 +2,7 @@ package com.toy.toytelephone.rpc.netty;
 
 import com.toy.common.network.TransportClientFactory;
 import com.toy.common.network.TransportContext;
+import com.toy.common.network.TransportServer;
 import com.toy.toytelephone.rpc.RpcAddress;
 import com.toy.toytelephone.rpc.RpcEndpoint;
 import com.toy.toytelephone.rpc.RpcEndpointRef;
@@ -20,10 +21,21 @@ public class NettyRpcEnv extends RpcEnv {
     private TransportClientFactory clientFactory;
     private AtomicBoolean stopped;
     private ConcurrentHashMap<RpcAddress, Outbox> outboxes;
+    private TransportServer server;
+    private RpcAddress address;
 
     public NettyRpcEnv(String name, String host, int prot) {
-        super(host, name, prot);
+        address = new RpcAddress(host, prot, name);
         init();
+    }
+
+    public RpcEnv create() {
+        server = new TransportServer(address.getPort(), address.getHost(), transportContext);
+        return this;
+    }
+
+    public RpcAddress getAddress() {
+        return address;
     }
 
     public void init() {
@@ -34,9 +46,22 @@ public class NettyRpcEnv extends RpcEnv {
         outboxes = new ConcurrentHashMap<>();
     }
 
+    public void send(RequestMessage message) {
+        RpcAddress remoteAddr = message.ReceiverAddress();
+        if (remoteAddr == address) {
+            //local
+        } else {
+            postToOutbox(message.Receiver(), new OneWayOutBoxMessage(message.serialize(this)));
+        }
+    }
+
+    private void postToOutbox(NettyRpcEndpointRef receiver, OneWayOutBoxMessage oneWayOutBoxMessage) {
+
+    }
+
     @Override
     public RpcEndpointRef endpointRef(RpcEndpoint endpoint) {
-        return null;
+        return dispatcher.getRpcEndpointRef(endpoint);
     }
 
     @Override
@@ -51,6 +76,7 @@ public class NettyRpcEnv extends RpcEnv {
 
     @Override
     public RpcEndpointRef setupEndpointRefByURI(String uri) {
+
         return null;
     }
 

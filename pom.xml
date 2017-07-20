@@ -7,8 +7,9 @@
     <artifactId>toy-parents</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <modules>
-        <module>toyhoodlecore</module>
+        <module>core</module>
         <module>toytelephone</module>
+        <module>tran</module>
     </modules>
     <packaging>pom</packaging>
 

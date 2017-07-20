@@ -1,10 +1,11 @@
-package com.toy.toyhoodle.core.conf;
+package com.toy.conf;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by ljx on 2017/1/4.
+ * Created by ljx on
+ * 2017/1/4.
  */
 public class HoodlCofig {
     private ConcurrentHashMap<String, String> hashMap = new ConcurrentHashMap<>();

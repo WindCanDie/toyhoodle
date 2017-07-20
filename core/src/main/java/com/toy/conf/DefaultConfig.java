@@ -1,4 +1,4 @@
-package com.toy.toyhoodle.core.conf;
+package com.toy.conf;
 
 import java.util.HashMap;
 

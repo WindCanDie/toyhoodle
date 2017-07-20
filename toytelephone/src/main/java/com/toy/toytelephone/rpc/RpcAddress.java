@@ -13,15 +13,26 @@ public class RpcAddress implements Serializable {
     private final int port;
     private String toURL;
 
-    public RpcAddress(String host, int post) {
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    private String name;
+
+    public RpcAddress(String host, int post, String name) {
         this.host = host;
         this.port = post;
-        toURL = "toy://" + host + ":" + port;
+        this.name = name;
+        toURL = "toy://" + name + "@" + host + ":" + port;
     }
 
     public static RpcAddress fromURIString(String uri) throws URISyntaxException {
         URI uriObj = new java.net.URI(uri);
-        return new RpcAddress(uriObj.getHost(), uriObj.getPort());
+        return new RpcAddress(uriObj.getHost(), uriObj.getPort(), uriObj.getQuery());
     }
 
     @Override

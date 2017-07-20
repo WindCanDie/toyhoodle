@@ -1,6 +1,6 @@
-package com.toy.toyhoodle.core.conf;
+package com.toy.conf;
 
-import com.toy.toyhoodle.core.util.Utils;
+import com.toy.util.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by ljx on 2016/12/25.
+ * Created by ljx on
+ * <p>
+ * 2016/12/25.
  */
 public interface ConfigProvider {
     String CONFIGFILE = "hoodle.property";
@@ -31,18 +33,21 @@ public interface ConfigProvider {
     public class MapConfig implements ConfigProvider {
         private static Map<Object, Object> confFile = null;
         private Map<Object, Object> mergeConf = null;
+
         static {
             if (confFile == null) lodefile();
         }
-        public MapConfig(){
+
+        public MapConfig() {
             mergeConf = confFile;
         }
+
         public MapConfig(Map map) {
             mergeConf = confFile;
             mergeConf.putAll(map);
         }
 
-        public Map<Object,Object> getAllConf(){
+        public Map<Object, Object> getAllConf() {
             return mergeConf;
         }
 
