@@ -7,5 +7,6 @@ import java.nio.ByteBuffer;
  */
 public class OneWayOutBoxMessage {
     public OneWayOutBoxMessage(ByteBuffer serialize) {
+
     }
 }

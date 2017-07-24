@@ -22,6 +22,7 @@ public class Dispatcher {
     private LinkedBlockingQueue<EndpointData> receivers = new LinkedBlockingQueue<>();
     private final EndpointData PoisonPill = new EndpointData(null, null, null);
     private NettyRpcEnv nettyEnv;
+    private boolean stopped = false;
 
     public Dispatcher(NettyRpcEnv nettyRpcEnv) {
         this.nettyEnv = nettyRpcEnv;
@@ -32,8 +33,8 @@ public class Dispatcher {
 
 
     public NettyRpcEndpointRef registerRpcEndpoint(String name, RpcEndpoint rpcEndpoint) {
-        NettyRpcAddress nettyRpcAddress = new NettyRpcAddress(nettyEnv.getAddress(),name);
-        NettyRpcEndpointRef ref = new NettyRpcEndpointRef(nettyEnv,nettyRpcAddress);
+        NettyRpcAddress nettyRpcAddress = new NettyRpcAddress(nettyEnv.getAddress(), name);
+        NettyRpcEndpointRef ref = new NettyRpcEndpointRef(nettyEnv, nettyRpcAddress);
         if (endpoints.putIfAbsent(name, new EndpointData(name, rpcEndpoint, ref)) != null) {
             throw new IllegalArgumentException("This name is already exist");
         }
@@ -65,6 +66,21 @@ public class Dispatcher {
         }
     }
 
+    public void postOneWayMessage(RequestMessage message) {
+
+    }
+
+    private void postMessage(String endpointName, InboxMessage message) {
+        EndpointData data = endpoints.get(endpointName);
+        if (stopped) {
+            throw new RuntimeException("Env hased stop");
+        } else if (data == null) {
+            throw new RuntimeException("Could not find " + endpointName);
+        } else {
+            data.inbox.post(message);
+            receivers.offer(data);
+        }
+    }
 
     private static final class EndpointData {
         private String name;

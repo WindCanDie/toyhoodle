@@ -49,7 +49,7 @@ public class NettyRpcEnv extends RpcEnv {
     public void send(RequestMessage message) {
         RpcAddress remoteAddr = message.ReceiverAddress();
         if (remoteAddr == address) {
-            //local
+            dispatcher.postOneWayMessage(message);
         } else {
             postToOutbox(message.Receiver(), new OneWayOutBoxMessage(message.serialize(this)));
         }

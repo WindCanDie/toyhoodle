@@ -1,6 +1,8 @@
 package com.toy.toytelephone.rpc.netty;
 
 import com.toy.toytelephone.rpc.RpcEndpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 
@@ -15,7 +17,7 @@ public class Inbox {
     private boolean enableConcurrent = false;
     private int numActiveThreads = 1;
     private boolean stopped = false;
-
+    private Logger logger = LoggerFactory.getLogger(Inbox.class);
     public Inbox(RpcEndpoint rpcEndpoint, NettyRpcEndpointRef rpcEndpointRef) {
         this.rpcEndpoint = rpcEndpoint;
         this.rpcEndpointRef = rpcEndpointRef;
@@ -64,4 +66,18 @@ public class Inbox {
             }
         }
     }
+
+    public void post(InboxMessage message) {
+        if (stopped) {
+            // We already put "OnStop" into "messages", so we should drop further messages
+            onDrop(message);
+        } else {
+            messages.add(message);
+        }
+    }
+
+    protected void onDrop(InboxMessage message) {
+        logger.warn("Drop "+message+" because $endpointRef is stopped");
+    }
+
 }
