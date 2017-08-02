@@ -1,4 +1,4 @@
-package com.toy.tran.db;
+package com.toy.tran.data.db;
 
 import org.h2.tools.Server;
 

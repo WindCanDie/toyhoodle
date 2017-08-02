@@ -1,6 +1,6 @@
 package com.toy.tarn.test;
 
-import com.toy.tran.db.H2DB;
+import com.toy.tran.data.db.H2DB;
 import org.junit.Test;
 
 import java.sql.SQLException;

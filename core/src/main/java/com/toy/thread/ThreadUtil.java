@@ -1,4 +1,4 @@
-package com.toy.common.thread;
+package com.toy.thread;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 

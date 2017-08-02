@@ -1,6 +1,6 @@
 package com.toy.toytelephone.rpc.netty;
 
-import com.toy.common.thread.ThreadUtil;
+import com.toy.thread.ThreadUtil;
 import com.toy.toytelephone.rpc.RpcEndpoint;
 import com.toy.toytelephone.rpc.RpcEndpointRef;
 

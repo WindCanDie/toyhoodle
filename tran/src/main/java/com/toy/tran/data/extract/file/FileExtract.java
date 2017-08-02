@@ -1,4 +1,6 @@
-package com.toy.tran.extract;
+package com.toy.tran.data.extract.file;
+
+import com.toy.tran.data.extract.Extract;
 
 /**
  * Created by Administrator on
