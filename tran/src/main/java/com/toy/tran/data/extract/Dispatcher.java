@@ -5,16 +5,5 @@ package com.toy.tran.data.extract;
  * 2017/8/2.
  */
 public class Dispatcher {
-/**
- *
- * E registere D
- *
- * D ->E.next ->chennel.put
- *
- * chennel.filter
- *
- *
- *
- */
 
 }

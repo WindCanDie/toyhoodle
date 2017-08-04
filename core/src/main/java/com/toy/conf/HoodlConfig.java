@@ -7,10 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by ljx on
  * 2017/1/4.
  */
-public class HoodlCofig {
+public class HoodlConfig {
     private ConcurrentHashMap<String, String> hashMap = new ConcurrentHashMap<>();
 
-    public HoodlCofig() {
+    public HoodlConfig() {
         loadfileProperties();
         loadSystemProperties();
     }
@@ -31,6 +31,10 @@ public class HoodlCofig {
 
     public String getConfig(String key) {
         return hashMap.get(key);
+    }
+
+    public String getConfig(String key, String defaultValue) {
+        return hashMap.get(key) == null ? defaultValue : hashMap.get(key);
     }
 
     public long getConfigToLong(String key) {
