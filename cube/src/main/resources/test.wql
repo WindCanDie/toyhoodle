@@ -1,0 +1,75 @@
+  ####################
+#
+#
+#
+#
+#######################
+[DATASOURCE]
+  hive  jdbc:mysql://127.0.0.1:8088/mydb  org.apache.hive.dirve
+[PARAM]
+	#################################################
+	##			常用输入参数
+	#################################################
+  @VALUE1           TYPEAS        string
+  @VALUE2           TYPEAS        int
+  @VALUE3           TYPEAS        table
+  @VALUE4           TYPEAS        double
+[ACTION]
+
+	##########################################
+	#			1、输入输出检查				 #
+	##########################################
+
+
+	##########################################
+	#			2、主过程前处理				 #
+	##########################################
+
+
+	##########################################
+	#			3、业务主过程			 	 #
+	##########################################
+  @VALUE1 = abc
+  IF @VALUE1 == abcd
+      QUERY  hive
+          SELECT abc,vvv,
+                 ddd,cc,
+          FROM bigTable WHERE abc = @VALUE1
+      ENDQUERY
+  ELSE
+      @VAL1 = abcdddd
+      QUERY  hive
+          SELECT abc,vvv,
+                 ddd,cc,
+          FROM bigTable WHERE abc = @VALUE1
+      ENDQUERY
+  ENDIF
+
+  WHILE @VALUE4 = @table1.table1
+     IF @VALUE1 == abc
+      QUERY hive AS @VALUE3
+          SELECT abc,vvv,
+                 ddd,cc,
+          FROM bigTable
+      ENDQUERY
+      ELSE
+        IF   @VALUE1 == abc
+          @VALUE4 = @table1.abc
+        ENDIF
+      ENDIF
+  ENDWHILE
+
+  FOREACH @VALUE3 @V1,@V2,@V3,@V4
+    IF @VALUE1 == abc
+      QUERY  table1
+          SELECT abc,vvv,
+                 ddd,cc,
+          FROM bigTable
+      ENDQUERY
+      ELSE
+        IF  @VALUE1 == abc
+          @VALUE4 = @table1.abc
+        ENDIF
+      ENDIF
+  ENDFOREACH
+

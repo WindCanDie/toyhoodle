@@ -1,0 +1,223 @@
+[交易说明]
+	交易名：		社会建议投诉查询
+	所属模块：	社会
+	功能简述：	
+	版权所有：	
+	表引用：		
+				1、消防建议投诉表【F_BS_FireSuggestComplainInfo】
+				2、系统基础数据表【G_SY_SysDicinfo】
+				3、消防机关组织机构【G_BD_FireDepart】
+				4、消防技术服务机构信息表【G_BD_TechServiceInfo】
+				5、社会单位信息表【G_BD_SocialInfo】(通过合同生成)
+				6、项目信息表【G_BD_ProjectInfo】
+
+	版本经历：	
+				1、v1.0					2015-03-16 10:11:23		dyw 创建
+
+[数据库]
+	--指定数据库，为空采用默认值，默认为db.properties中列出的第一个库
+
+[IO定义]
+	输入.flag												TYPEAS		s_string
+	输入.fis_active   							TYPEAS		s_string
+	
+	输入.suggestcomplainuuid        TYPEAS		s_string
+	输入.ftitle                   	TYPEAS		s_string
+	输入.ftype                 	    TYPEAS		s_string
+	输入.beginfcreat_time    	TYPEAS		s_string
+	输入.endfcreat_time      	TYPEAS		s_string
+	输入.fstate            	TYPEAS		s_string
+
+	#省份标识
+	输入.province_id					TYPEAS		s_string
+	#职位标识
+	输入.role_uuid 				TYPEAS		s_string
+	#操作人员标识
+	输入.operator_person_uuid					TYPEAS		s_string
+	#操作人员标识
+	输入.sys_code					TYPEAS		s_string
+	
+                                  
+	
+[临时表]
+	--这边列出来的临时表就会在运行期动态创建
+	
+[临时变量]
+	--所有中间过程变量均可在此处定义
+	临时.是否启用   TYPEAS		s_string
+	
+[业务过程]
+
+	##########################################
+	#			1、输入输出检查				 #
+	##########################################
+
+	
+	##########################################
+	#			2、主过程前处理				 #
+	##########################################
+	
+	
+	##########################################
+	#			3、业务主过程			 	 #
+	##########################################
+	IF	输入.flag = ""
+		ERROR "：未输入操作符"
+	ENDIF
+	
+	IF	输入.fis_active = ""
+		临时.是否启用 = "1"
+	ELSE
+		临时.是否启用 = 输入.fis_active
+	ENDIF
+	
+	#开始
+		CALLWQL UMENSYS0001 WITH
+			role_uuid = 输入.role_uuid
+			person_uuid = 输入.operator_person_uuid
+			sys_code = 输入.sys_code
+			province_id = 输入.province_id
+		ENDCALLWQL		
+	#结束
+	#查询巡查
+	IF	输入.flag = 1
+		PAGEQUERY
+			SELECT
+					a.SuggestComplainUUID
+					,a.FTitle
+					,a.Content
+					,a.Ffiredepart_UUID
+					,c.Fdepart_Code          as FDepartCode
+					,c.Fdepart_Name          as FDepartName
+					,a.AttachmentDocUUID
+					,a.AttachmentDocName
+					,a.Ftype 
+					,b.fdic_alias_name       as FtypeName
+					,a.Fcreator_ID
+					,a.Fcreator_Name
+					,a.Fcreat_Time
+					,case a.Fis_Active when "1" then "是" when "0" then "否" end as Fis_Active
+					,a.ReplyContent
+					,a.ReplyOptorUUID
+					,a.ReplyOptorName
+					,a.ReplyOptorTime
+					,a.FState
+					,case a.FState when "00" then "待回复" when "01" then "已回复" else "" end as FStateName
+					,a.FTecService_UUID
+					,d.Ftech_Service_Name    as FTecService_Name
+					,d.FAddress              as FTecService_Address
+					,d.Flegal_Person         as FTecService_Person
+					,d.Ftel_No               as FTecService_Tel
+					,a.Fsocial_UUID
+					,e.Fsocial_Name          as Fsocial_Name
+					,e.FAddress              as Fsocial_Address
+					,e.Flink_Man             as Fsocial_Person
+					,e.Ftel_No               as Fsocial_Tel
+					,a.FProject_UUID
+					,f.Fproject_Name         as Fproject_Name
+					,f.FAddress              as Fproject_Address
+					,f.Flink_Man             as Fproject_Person
+					,f.Ftel_No               as Fproject_Tel
+				FROM F_BS_FireSuggestComplainInfo a
+ 				inner join G_SY_SysDicinfo b on b.Fdic_Code = a.Ftype
+ 				inner join G_BD_FireDepart c on c.Ffiredepart_UUID = a.Ffiredepart_UUID
+ 				inner join G_BD_TechServiceInfo d on d.FTecService_UUID = a.FTecService_UUID
+ 				inner join G_BD_SocialInfo e on e.Fsocial_UUID = a.Fsocial_UUID
+ 				inner join G_BD_ProjectInfo f on f.FProject_UUID = a.FProject_UUID
+ 				INNER JOIN TEMP_UserDeptPerm t ON 1=1
+				OPTION 输入.sys_code = "G0701" 
+					t.Fdepart_UUID = a.Ffiredepart_UUID
+				ENDOPTION
+				OPTION 输入.sys_code = "G0702" 
+					 t.Fdepart_UUID = a.FTecService_UUID
+				ENDOPTION
+				OPTION 输入.sys_code = "G0703" 
+					 t.Fdepart_UUID = a.Fsocial_UUID
+				ENDOPTION
+				WHERE 1=1
+				and a.Fis_Active = 临时.是否启用 
+				OPTION 输入.suggestcomplainuuid <> ""
+					a.suggestcomplainuuid = 输入.suggestcomplainuuid                                                      
+				ENDOPTION    
+				OPTION 输入.ftitle <> ""
+					a.ftitle like '%' 输入.ftitle '%'
+				ENDOPTION
+				OPTION 输入.ftype <> ""                                       
+					a.ftype = 输入.ftype                        
+				ENDOPTION                                     
+ 				OPTION 输入.fstate <> ""                 
+					a.fstate = 输入.fstate                
+				ENDOPTION                                           
+				OPTION 输入.beginfcreat_time <> ""
+					a.fcreat_time >= 输入.beginfcreat_time '000000' and a.fcreat_time <= 输入.endfcreat_time '235959'
+				ENDOPTION
+				order by a.fcreat_time desc 
+			ENDSELECT
+		ENDPAGEQUERY
+	ENDIF
+  
+  	IF	输入.flag = 2
+		QUERY
+			SELECT
+					a.SuggestComplainUUID
+					,a.FTitle
+					,a.Content
+					,a.Ffiredepart_UUID
+					,c.Fdepart_Code          as FDepartCode
+					,c.Fdepart_Name          as FDepartName
+					,a.AttachmentDocUUID
+					,a.AttachmentDocName
+					,a.Ftype 
+					,b.fdic_alias_name       as FtypeName
+					,a.Fcreator_ID
+					,a.Fcreator_Name
+					,a.Fcreat_Time
+					,case a.Fis_Active when "1" then "是" when "0" then "否" end as Fis_Active
+					,a.ReplyContent
+					,a.ReplyOptorUUID
+					,a.ReplyOptorName
+					,a.ReplyOptorTime
+					,a.FState
+					,case a.FState when "00" then "待回复" when "01" then "已回复" else "" end as FStateName
+					,a.FTecService_UUID
+					,d.Ftech_Service_Name    as FTecService_Name
+					,d.FAddress              as FTecService_Address
+					,d.Flegal_Person         as FTecService_Person
+					,d.Ftel_No               as FTecService_Tel
+					,a.Fsocial_UUID
+					,e.Fsocial_Name          as Fsocial_Name
+					,e.FAddress              as Fsocial_Address
+					,e.Flink_Man             as Fsocial_Person
+					,e.Ftel_No               as Fsocial_Tel
+					,a.FProject_UUID
+					,f.Fproject_Name         as Fproject_Name
+					,f.FAddress              as Fproject_Address
+					,f.Flink_Man             as Fproject_Person
+					,f.Ftel_No               as Fproject_Tel
+				FROM F_BS_FireSuggestComplainInfo a
+ 				inner join G_SY_SysDicinfo b on b.Fdic_Code = a.Ftype
+ 				inner join G_BD_FireDepart c on c.Ffiredepart_UUID = a.Ffiredepart_UUID
+ 				inner join G_BD_TechServiceInfo d on d.FTecService_UUID = a.FTecService_UUID
+ 				inner join G_BD_SocialInfo e on e.Fsocial_UUID = a.Fsocial_UUID
+ 				inner join G_BD_ProjectInfo f on f.FProject_UUID = a.FProject_UUID
+				WHERE 1=1
+				and a.Fis_Active = 临时.是否启用
+				OPTION 输入.suggestcomplainuuid <> ""
+					a.suggestcomplainuuid = 输入.suggestcomplainuuid                                                      
+				ENDOPTION    
+				OPTION 输入.ftitle <> ""
+					a.ftitle like '%' 输入.ftitle '%'
+				ENDOPTION
+				OPTION 输入.ftype <> ""                                       
+					a.ftype = 输入.ftype                        
+				ENDOPTION                                     
+ 				OPTION 输入.fstate <> ""                 
+					a.fstate = 输入.fstate                
+				ENDOPTION                                           
+				OPTION 输入.beginfcreat_time <> ""
+					a.fcreat_time >= 输入.beginfcreat_time and a.fcreat_time <= 输入.endfcreat_time
+				ENDOPTION
+				order by a.fcreat_time desc 
+			ENDSELECT
+		ENDQUERY
+	ENDIF                                      

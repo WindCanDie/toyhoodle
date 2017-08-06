@@ -10,6 +10,8 @@
         <module>core</module>
         <module>toytelephone</module>
         <module>tran</module>
+        <module>snipe</module>
+        <module>cube</module>
     </modules>
     <packaging>pom</packaging>
 
