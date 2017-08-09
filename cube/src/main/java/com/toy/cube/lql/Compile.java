@@ -46,7 +46,7 @@ public class Compile {
 
     private Action putAction(String lien) throws IOException {
         if (lien == null)
-            throw new RuntimeException("exp errer");
+            throw new RuntimeException("Line " + readFile.getLine() + " exp errer");
         if (lien.startsWith(Action.IF)) {
             String param = lien.substring(2);
             List<Action> _true_ = new ArrayList<>();
@@ -64,27 +64,29 @@ public class Compile {
                 else
                     _false_.add(putAction(next));
             }
-            throw new RuntimeException("not ENDIF");
+            throw new RuntimeException("Line " + readFile.getLine() + " not ENDIF");
 
         } else if (lien.startsWith(Action.QUERY)) {
             lien = lien.substring(5);
             String[] lientReg = StringUtil.trimSplit(lien, "AS");
             Param name = null;
+            if (lientReg.length < 1)
+                throw new RuntimeException("Not Query DATASOURCE");
+
             Connection conn = exe.getConnection(lientReg[0]);
             if (lientReg.length == 2) {
+                exe.putParam(lientReg[1], "table");
                 name = exe.getParam(lientReg[1]);
-                if (name == null) {
-                    throw new RuntimeException(lientReg[1] + " is not param");
-                }
             }
             StringBuilder query = new StringBuilder();
             String next;
             while ((next = readFile.readLien()) != null) {
                 if (next.startsWith(Action.ENDQUERY))
                     return QUERY(query.toString(), conn, name);
+                next = " " + next + " ";
                 query.append(next);
             }
-            throw new RuntimeException("not ENDQUERY");
+            throw new RuntimeException("Line " + readFile.getLine() + " not ENDQUERY");
         } else if (lien.startsWith(Action.WHILE)) {
             List<Action> actions = new ArrayList<>();
             String next;
@@ -93,7 +95,7 @@ public class Compile {
                     return FOR(lien.substring(5).trim(), actions);
                 actions.add(putAction(next));
             }
-            throw new RuntimeException("not ENDWHILE");
+            throw new RuntimeException("Line " + readFile.getLine() + " not ENDWHILE");
 
         } else if (lien.startsWith(Action.FOREACH)) {
             List<Action> actions = new ArrayList<>();
@@ -107,13 +109,13 @@ public class Compile {
                     return FOREACH(param, actions, mapParam);
                 actions.add(putAction(next));
             }
-            throw new RuntimeException("not ENDFOREACH");
+            throw new RuntimeException("Line " + readFile.getLine() + " not ENDFOREACH");
         } else if (lien.startsWith("@")) {
             String[] vs = StringUtil.trimSplit(lien, "=");
             Param param = exe.getParam(vs[0].trim());
             return ASSIGNMENT(param, vs[1].trim());
         } else
-            throw new RuntimeException("Compile KeyWord error");
+            throw new RuntimeException("Line " + readFile.getLine() + " Compile KeyWord error");
     }
 
     private boolean modelTransform(String lien) {
@@ -132,7 +134,7 @@ public class Compile {
 
     private void putParam(String lien) {
         if (!lien.trim().startsWith("@")) {
-            throw new RuntimeException("param is startWith @");
+            throw new RuntimeException("Line " + readFile.getLine() + " param is startWith @");
         }
         String[] param = StringUtil.trimSplit(lien, "TYPEAS");
         assert param.length == 2;

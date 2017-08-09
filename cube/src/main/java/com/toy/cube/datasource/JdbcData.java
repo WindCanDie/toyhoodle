@@ -2,10 +2,7 @@ package com.toy.cube.datasource;
 
 import com.toy.cube.Config;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -34,9 +31,8 @@ public class JdbcData {
     }
 
     public Connection getConnection(String url, String driveClass, Properties properties) throws ClassNotFoundException, SQLException {
-//        Class.forName(driveClass);
-//        return getConnection(url, properties);
-        return null;
+        Class.forName(driveClass);
+        return getConnection(url, properties);
     }
 
 
@@ -45,8 +41,10 @@ public class JdbcData {
     }
 
     public static List<Map<String, Object>> query(Connection conn, String sql) throws SQLException {
-        System.out.print(sql);
-        ResultSet resultSet = conn.prepareStatement(sql).executeQuery();
+        System.out.println(sql);
+        PreparedStatement preparedStatement = conn.prepareStatement(sql);
+        preparedStatement.execute();
+        ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet == null)
             return null;
         else
@@ -57,9 +55,9 @@ public class JdbcData {
         int cloumCont = resultSet.getMetaData().getColumnCount();
         List<Map<String, Object>> result = new ArrayList<>();
         while (resultSet.next()) {
-            Map<String, Object> row = new HashMap<>();
+            Map<String, Object> row = new LinkedHashMap<>();
             for (int i = 0; i < cloumCont; i++) {
-                row.put(resultSet.getMetaData().getColumnLabel(i), resultSet.getObject(i));
+                row.put(resultSet.getMetaData().getColumnLabel(i + 1), resultSet.getObject(i + 1));
             }
             result.add(row);
         }

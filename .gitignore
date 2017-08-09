@@ -14,3 +14,9 @@ hs_err_pid*
 .idea/
 toyhoodlecore/target/classes/conf/hoodle.property
 toyhoodlecore/target/test-classes/conf/hoodle.property
+core/target/
+cube/target/
+snipe/target/
+toytelephone/target/classes/log4j.properties
+toytelephone/target/
+tran/target/

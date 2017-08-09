@@ -4,8 +4,7 @@ import com.toy.cube.datasource.JdbcData;
 import com.toy.cube.util.StringUtil;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ljx on
@@ -64,7 +63,7 @@ public class Analyize {
             for (Map<String, Object> map : tables) {
                 int i = 0;
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    if (i < foreach.param.length)
+                    if (i > foreach.param.length)
                         break;
                     foreach.param[i].value = entry.getValue();
                     i++;
@@ -82,7 +81,7 @@ public class Analyize {
         int startIndex;
         String chage = sql;
         while ((startIndex = chage.indexOf("@")) != -1) {
-            int endIndex = chage.indexOf(" ", startIndex);
+            int endIndex = getEndIndex(chage, startIndex);
             String paramName;
             if (endIndex == -1)
                 paramName = chage.substring(startIndex);
@@ -98,18 +97,33 @@ public class Analyize {
         return chage;
     }
 
+    private int getEndIndex(String sql, int startIndex) {
+        int endIndex1 = sql.indexOf(" ", startIndex);
+        int endIndex2 = sql.indexOf(",", startIndex);
+        int endIndex3 = sql.indexOf(")", startIndex);
+        Set<Integer> set = new TreeSet();
+        set.add(endIndex1);
+        set.add(endIndex2);
+        set.add(endIndex3);
+        set.remove(-1);
+        Iterator<Integer> it = set.iterator();
+        if (it.hasNext())
+            return it.next();
+        else
+            return -1;
+    }
+
 
     public boolean _if_Analyize(String condition) {
         String[] split = StringUtil.trimSplit(condition, " ");
         assert split.length == 3;
         if ("==".equals(split[1])) {
-            return getParamValue(split[0]).equals(getParamValue(split[2]));
+            return getParamValue(split[0]).toString().equals(getParamValue(split[2]));
         } else if ("<".equals(split[1])) {
             throw new RuntimeException("If can not " + split[2]);
 
         } else if (">".equals(split[1])) {
-            throw new RuntimeException("If can not " + split[2]);
-
+            return Integer.parseInt(getParamValue(split[0]).toString()) > Integer.parseInt(getParamValue(split[2]).toString());
         } else if (">=".equals(split[1])) {
             throw new RuntimeException("If can not " + split[2]);
 
@@ -121,9 +135,10 @@ public class Analyize {
         }
         throw new RuntimeException("If can not " + split[2]);
     }
+
     @SuppressWarnings("unchecked ")
     public Object getParamValue(String param) {
-        if (!param.startsWith("@"))
+        if (!param.startsWith("@") && !param.contains("."))
             return param;
         else {
             String[] ps = param.split("[.]");

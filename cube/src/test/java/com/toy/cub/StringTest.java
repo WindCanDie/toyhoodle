@@ -22,13 +22,19 @@ public class StringTest {
     @Test
     public void mapTest() {
         Map<String, Object> map = new HashMap<>();
-        map.put("a", "a");
-        map.put("b", "b");
-        map.put("c", "c");
-        map.put("d", "d");
+        map.put("aadf", "a");
+        map.put("bdf", "b");
+        map.put("cdfadsfads", "c");
+        map.put("cdfa", "c");
+        map.put("dfd", "d");
         for (Map.Entry<String, Object> m : map.entrySet()) {
-            System.out.print(m.getKey());
+            System.out.println(m.getKey());
         }
+
+    }
+
+    @Test
+    public void compareTOTest() {
 
     }
 
