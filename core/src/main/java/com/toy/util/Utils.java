@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by ljx on 2016/12/22.
+ * Created by ljx on
+ * 2016/12/22.
  */
 public class Utils {
     public static Map<String, String> getSystemProperties() {

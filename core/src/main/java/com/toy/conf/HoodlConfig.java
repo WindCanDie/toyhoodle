@@ -37,6 +37,7 @@ public class HoodlConfig {
         return hashMap.get(key) == null ? defaultValue : hashMap.get(key);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public long getConfigToLong(String key) {
         Object f = hashMap.get(key);
         if (f instanceof String)

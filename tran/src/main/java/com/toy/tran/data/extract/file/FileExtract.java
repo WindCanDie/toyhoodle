@@ -28,6 +28,7 @@ public class FileExtract extends Extract {
 
     @Override
     protected ByteBuffer getNext() {
+
         return null;
     }
 }

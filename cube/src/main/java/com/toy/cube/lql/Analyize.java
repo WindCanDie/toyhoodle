@@ -25,7 +25,7 @@ public class Analyize {
     }
 
     @SuppressWarnings("unchecked ")
-    public void doAnalyize(Action action) throws SQLException {
+    private void doAnalyize(Action action) throws SQLException {
         if (action instanceof Action.IF) {
             Action.IF _if_ = (Action.IF) action;
             List<Action> actions;
@@ -77,7 +77,7 @@ public class Analyize {
         }
     }
 
-    public String sqlParamChage(final String sql) {
+    private String sqlParamChage(final String sql) {
         int startIndex;
         String chage = sql;
         while ((startIndex = chage.indexOf("@")) != -1) {
@@ -101,7 +101,7 @@ public class Analyize {
         int endIndex1 = sql.indexOf(" ", startIndex);
         int endIndex2 = sql.indexOf(",", startIndex);
         int endIndex3 = sql.indexOf(")", startIndex);
-        Set<Integer> set = new TreeSet();
+        Set<Integer> set = new TreeSet<>();
         set.add(endIndex1);
         set.add(endIndex2);
         set.add(endIndex3);
@@ -114,7 +114,7 @@ public class Analyize {
     }
 
 
-    public boolean _if_Analyize(String condition) {
+    private boolean _if_Analyize(String condition) {
         String[] split = StringUtil.trimSplit(condition, " ");
         assert split.length == 3;
         if ("==".equals(split[1])) {
@@ -137,7 +137,7 @@ public class Analyize {
     }
 
     @SuppressWarnings("unchecked ")
-    public Object getParamValue(String param) {
+    private Object getParamValue(String param) {
         if (!param.startsWith("@") && !param.contains("."))
             return param;
         else {
