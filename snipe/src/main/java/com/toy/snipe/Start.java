@@ -38,7 +38,7 @@ public class Start {
         });
 
         TransportServer server = new TransportServer(8088, null, context);
-        while (true){
+        while (true) {
 
         }
 
