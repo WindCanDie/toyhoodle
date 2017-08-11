@@ -12,6 +12,7 @@
         <module>tran</module>
         <module>snipe</module>
         <module>cube</module>
+        <module>caterpillar</module>
     </modules>
     <packaging>pom</packaging>
 
