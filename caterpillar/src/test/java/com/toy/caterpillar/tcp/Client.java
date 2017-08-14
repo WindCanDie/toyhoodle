@@ -25,12 +25,12 @@ public class Client {
         InetSocketAddress address = new InetSocketAddress(ip, post);
         if (bootstrap == null) {
             bootstrap = new Bootstrap()
-                    .group(new NioEventLoopGroup(30))
+                    .group(new NioEventLoopGroup(50))
                     .channel(NioSocketChannel.class)
                     .option(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
-            //.option(ChannelOption.ALLOCATOR, pooledAllocator);
+//                .option(ChannelOption.ALLOCATOR, pooledAllocator);
 
             final AtomicReference<SocketChannel> channel = new AtomicReference<>();
             final AtomicReference<TransportClient> channel1 = new AtomicReference<>();
@@ -47,7 +47,7 @@ public class Client {
                             System.out.println(ctx.channel().remoteAddress().toString());
                             ctx.close();
                         }
-
+//
 //                        @Override
 //                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 //                            System.out.println(ctx.channel().remoteAddress().toString());
@@ -59,14 +59,17 @@ public class Client {
 
             });
         }
+
         ChannelFuture cf = bootstrap.connect(address);
     }
 
     @Test
     public void tcpClient() throws IOException, InterruptedException {
+        long t1 = System.currentTimeMillis();
         for (int i = 1; i <= 65535; i++) {
             getClient("127.0.0.1", i);
         }
+        System.out.println(System.currentTimeMillis() - t1);
         while (true) {
         }
     }

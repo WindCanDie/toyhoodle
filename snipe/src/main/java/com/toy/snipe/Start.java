@@ -38,9 +38,6 @@ public class Start {
         });
 
         TransportServer server = new TransportServer(10001, null, context);
-        while (true) {
-
-        }
 
     }
 }
