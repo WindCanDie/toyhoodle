@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -13,16 +14,18 @@ import java.sql.SQLException;
  * 2017/8/3.
  */
 public class MysqlConnect {
-    private static String url = "jdbc:mysql://127.0.0.1:8088/mydb";
+    private static String url = "jdbc:mysql://127.0.0.1:10000/test";
 
     @Test
     public void jdbcTest() throws ClassNotFoundException, SQLException {
         Connection conn;
 
-        conn = DriverManager.getConnection(url);
+        conn = DriverManager.getConnection(url, "root", "921028");
 
-        conn.prepareStatement("SELECT * from aa").executeQuery();
-        System.out.print("aa");
+        ResultSet rs = conn.prepareStatement("SELECT * from test").executeQuery();
+        while (rs.next()) {
+            System.out.println(rs.getInt(1));
+        }
     }
 
     @Test

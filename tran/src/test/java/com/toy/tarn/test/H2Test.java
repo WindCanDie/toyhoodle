@@ -1,9 +1,13 @@
 package com.toy.tarn.test;
 
 import com.toy.tran.data.db.H2DB;
+import org.apache.hadoop.io.Text;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.sql.SQLException;
+
+import static java.lang.System.in;
 
 /**
  * Created by Administrator on
@@ -41,5 +45,8 @@ public class H2Test {
             }
         }).start();
     }
+
+
+
 
 }

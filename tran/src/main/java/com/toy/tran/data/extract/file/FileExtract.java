@@ -87,7 +87,7 @@ class FileScheduler {
                 try {
                     LineInputStream inputStream = new LineInputStream(dir.getPath(), "", "");
                     String data;
-                    while ((data = inputStream.raedLine()) != null) {
+                    while ((data = inputStream.readData()) != null) {
                         dataBuffers.put(serDe.serialize(data));
                     }
                     if (close && endTread.addAndGet(-1) == 1) {
