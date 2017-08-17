@@ -1,1 +1,18 @@
+global:
 
+
+server:
+  -    name: mysql1
+       mode: database
+       post: 10920
+       balance: roundrobin
+       server:
+           - 10.207.252.34:80
+           - 10.207.252.34:80
+  -    name: mysql2
+       mode: database
+       post: 10920
+       balance: roundrobin
+       server:
+           - 10.207.252.34:80
+           - 10.207.252.34:80

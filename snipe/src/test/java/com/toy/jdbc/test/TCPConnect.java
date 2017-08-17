@@ -4,6 +4,9 @@ import com.toy.common.network.*;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 
 /**
@@ -46,4 +49,18 @@ public class TCPConnect {
         TransportClient client = clientFactory.createClient("SFHN08", 10000);
         Thread.sleep(500000);
     }
+
+    @Test
+    public void tcpClient2() throws IOException {
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress("SFHN08", 10000));
+        InputStream out  =  socket.getInputStream();
+        byte[] v = new byte[1024];
+        while (out.read(v)!=-1){
+            System.out.println(new String(v));
+        }
+
+
+    }
+
 }
