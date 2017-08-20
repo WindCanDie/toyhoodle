@@ -8,7 +8,7 @@ import java.util.List;
  * 2017/8/17.
  */
 public interface Scheduler {
-    String BALANCE = "BALANCE";
+    String BALANCE = "roundrobin";
 
     SocketAddress getServerAddress();
 

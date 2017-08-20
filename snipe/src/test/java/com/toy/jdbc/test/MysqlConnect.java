@@ -14,7 +14,7 @@ import java.sql.SQLException;
  * 2017/8/3.
  */
 public class MysqlConnect {
-    private static String url = "jdbc:mysql://127.0.0.1:10000/test";
+    private static String url = "jdbc:mysql://127.0.0.1:10920/test";
 
     @Test
     public void jdbcTest() throws ClassNotFoundException, SQLException {

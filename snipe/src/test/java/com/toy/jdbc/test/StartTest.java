@@ -1,12 +1,15 @@
 package com.toy.jdbc.test;
 
+import com.toy.snipe.Start;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -16,7 +19,7 @@ import java.net.Socket;
  * Created by ljx on
  * 2017/8/3.
  */
-public class Start {
+public class StartTest {
     public static void main(String[] args) {
         ServerBootstrap bootstrap;
         int enventLoopThreadNum = 4;
@@ -136,4 +139,12 @@ public class Start {
         while (true) {
         }
     }
+
+    @Test
+    public void starTest() throws FileNotFoundException, InterruptedException {
+        String[] arge = {"G:\\java\\toy\\toyhoodle\\snipe\\src\\main\\resources\\hoodle.yml"};
+        Start.main(arge);
+    }
+
+
 }

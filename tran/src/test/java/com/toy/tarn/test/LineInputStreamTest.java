@@ -17,7 +17,7 @@ import java.nio.ByteBuffer;
 public class LineInputStreamTest {
     @Test
     public void LineInputReadTest() throws IOException {
-        LineInputStream lineInputStream = new LineInputStream(new FileInputStream(new File("G:\\java\\toy\\toyhoodle\\tran\\src\\test\\resources\\LineInputStream.txt")), "<>", "UTF-8");
+        LineInputStream lineInputStream = new LineInputStream("G:\\java\\toy\\toyhoodle\\tran\\src\\test\\resources\\LineInputStream.txt", "<>", "UTF-8");
         String v;
         while ((v = lineInputStream.readCustomLine(64 * 1024, 64 * 1024)) != null) {
             System.out.println(v);

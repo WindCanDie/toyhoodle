@@ -21,7 +21,9 @@ public class Config {
     public void setConfFile(final String dir) throws FileNotFoundException {
         Yaml yaml = new Yaml();
         LinkedHashMap obj = (LinkedHashMap) yaml.load(new FileInputStream(new File(dir)));
-        grlobalConfig = (LinkedHashMap) obj.get(GLOBAL);
+        if (obj.get(GLOBAL) != null)
+            grlobalConfig = (LinkedHashMap) obj.get(GLOBAL);
+        grlobalConfig = new LinkedHashMap();
         serverConifg = (List<LinkedHashMap>) obj.get(SERVER);
     }
 

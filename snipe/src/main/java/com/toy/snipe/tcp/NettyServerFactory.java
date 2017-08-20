@@ -1,7 +1,10 @@
 package com.toy.snipe.tcp;
 
 import com.toy.snipe.conf.Config;
+import com.toy.snipe.tcp.db.TransprtDBClint;
+import com.toy.snipe.tcp.db.TransprtDBHandler;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -11,6 +14,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NettyServerFactory {
@@ -30,28 +34,33 @@ public class NettyServerFactory {
     }
 
 
-    private ServerBootstrap createBootStrap(String type) {
+    private ServerBootstrap createBootStrap(String type, Scheduler scheduler) {
         ServerBootstrap bootstrap = null;
-        if (MODE_DATABASE.equals(type)) bootstrap = createDatabase();
+        if (MODE_DATABASE.equals(type)) bootstrap = createDatabase(scheduler);
         bootstraps.put(MODE_DATABASE, bootstrap);
         return bootstrap;
     }
 
-    @SuppressWarnings("SuspiciousMethodCalls")
+    @SuppressWarnings({"SuspiciousMethodCalls", "unchecked"})
     public void createTCPServer(Map map) {
         ServerBootstrap bootstrap = bootstraps.get(map.get("mode"));
-        if (bootstrap == null)
-            bootstrap = createBootStrap((String) map.get("mode"));
-        int post = Integer.parseInt((String) map.get("post"));
+        if (bootstrap == null) {
+            Scheduler scheduler = null;
+            if (Scheduler.BALANCE.equals(map.get("balance")))
+                scheduler = new BalanceScheduler((List<String>) map.get("client"));
+            bootstrap = createBootStrap((String) map.get("mode"), scheduler);
+        }
+        int post = (int) map.get("post");
         InetSocketAddress address = new InetSocketAddress(post);
         try {
-            bootstrap.bind(address).sync();
+            ChannelFuture f = bootstrap.bind(address).sync();
+            f.channel().closeFuture();
         } catch (InterruptedException e) {
             throw new RuntimeException("server run Exception" + e.getMessage());
         }
     }
 
-    private ServerBootstrap createDatabase() {
+    private ServerBootstrap createDatabase(Scheduler scheduler) {
         EventLoopGroup bossGroup = new NioEventLoopGroup(enventLoopThreadNum);
         EventLoopGroup workerGroup = new NioEventLoopGroup(enventLoopThreadNum);
         ServerBootstrap bootstrap = new ServerBootstrap()
@@ -60,10 +69,11 @@ public class NettyServerFactory {
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true);
+        TransprtDBHandler handler = new TransprtDBHandler(new TransprtDBClint(scheduler));
         bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast("handler", new TransprtHandler());
+                ch.pipeline().addLast("handler", handler);
             }
         });
         return bootstrap;
