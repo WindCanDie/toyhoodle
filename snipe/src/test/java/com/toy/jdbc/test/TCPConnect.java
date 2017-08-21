@@ -59,8 +59,6 @@ public class TCPConnect {
         while (out.read(v)!=-1){
             System.out.println(new String(v));
         }
-
-
     }
 
 }

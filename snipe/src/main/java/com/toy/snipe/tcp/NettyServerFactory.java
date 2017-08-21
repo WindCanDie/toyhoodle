@@ -43,7 +43,7 @@ public class NettyServerFactory {
 
     @SuppressWarnings({"SuspiciousMethodCalls", "unchecked"})
     public void createTCPServer(Map map) {
-        ServerBootstrap bootstrap = bootstraps.get(map.get("mode"));
+        ServerBootstrap bootstrap = bootstraps.get(map.get("name"));
         if (bootstrap == null) {
             Scheduler scheduler = null;
             if (Scheduler.BALANCE.equals(map.get("balance")))

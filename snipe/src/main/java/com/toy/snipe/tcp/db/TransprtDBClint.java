@@ -42,7 +42,7 @@ public class TransprtDBClint {
 
         void sendData(ByteBuf byteBuf) throws IOException {
             byte[] b = new byte[byteBuf.readableBytes()];
-            byteBuf.getBytes(0,b);
+            byteBuf.getBytes(0, b);
             socket.getOutputStream().write(b);
         }
 

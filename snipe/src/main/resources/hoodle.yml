@@ -8,3 +8,9 @@ server:
        balance: roundrobin
        client:
            - 127.0.0.1:3306
+  -    name: hive
+       mode: database
+       post: 10922
+       balance: roundrobin
+       client:
+           - SFHN08:10000

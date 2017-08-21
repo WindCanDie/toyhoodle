@@ -20,6 +20,11 @@ import java.net.Socket;
  * 2017/8/3.
  */
 public class StartTest {
+    @Test
+    public void starTest0() throws FileNotFoundException, InterruptedException {
+        String[] arge = {"D:\\work\\ljx\\snipe\\src\\main\\resources\\hoodle.yml"};
+        Start.main(arge);
+    }
     public static void main(String[] args) {
         ServerBootstrap bootstrap;
         int enventLoopThreadNum = 4;
