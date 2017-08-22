@@ -5,9 +5,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class TransprtDBHandler extends ChannelInboundHandlerAdapter {
-    private TransprtDBClint transprtClint;
+    private TransprtDBClint0 transprtClint;
 
-    public TransprtDBHandler(TransprtDBClint transprtClint) {
+    public TransprtDBHandler(TransprtDBClint0 transprtClint) {
         this.transprtClint = transprtClint;
     }
 

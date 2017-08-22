@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentMap;
 public class TransprtDBClint0 {
     private Scheduler scheduler;
     private ConcurrentMap<String, Client> cliMap;
-    private ConcurrentMap<String, Client> answerMap;
+    ConcurrentMap<String, Client> answerMap;
     private Bootstrap bootstrap;
 
     public TransprtDBClint0(Scheduler scheduler) {
@@ -35,7 +35,7 @@ public class TransprtDBClint0 {
                 .group(new NioEventLoopGroup(30))
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.TCP_NODELAY, true);
-        ClientHandle handle = new ClientHandle();
+        ClientHandle handle = new ClientHandle(this);
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -45,7 +45,7 @@ public class TransprtDBClint0 {
         return bootstrap;
     }
 
-    private static class Client {
+     static class Client {
         ChannelHandlerContext ctx;
         Channel channel;
 
@@ -80,14 +80,14 @@ public class TransprtDBClint0 {
         client.sendData(byteBuf);
     }
 
-    public void createClient(ChannelHandlerContext ctx) throws InterruptedException {
+    void createClient(ChannelHandlerContext ctx) throws InterruptedException {
         ChannelFuture future = bootstrap.connect(scheduler.getServerAddress()).sync();
         Client client = new Client(ctx, future.channel());
         cliMap.put(getRemoteId(ctx.channel()), client);
         answerMap.put(getLocalId(future.channel()), client);
     }
 
-    private String getLocalId(Channel channel) {
+     String getLocalId(Channel channel) {
         InetSocketAddress address = (InetSocketAddress) channel.localAddress();
         return address.getHostName() + address.getPort();
     }
@@ -97,26 +97,31 @@ public class TransprtDBClint0 {
         return address.getHostName() + address.getPort();
     }
 
-    public void closeClient(ChannelHandlerContext ctx) throws IOException {
+    void closeClient(ChannelHandlerContext ctx) throws IOException {
         Client client = cliMap.get(getRemoteId(ctx.channel()));
         client.close();
+        cliMap.remove(getRemoteId(ctx.channel()));
+        answerMap.remove(getLocalId(client.channel));
     }
 
     public void close() throws IOException {
     }
+}
+@ChannelHandler.Sharable
+class ClientHandle extends ChannelInboundHandlerAdapter {
+    TransprtDBClint0 transprtDBClint0;
+    ClientHandle(TransprtDBClint0 transprtDBClint0){
+        this.transprtDBClint0 = transprtDBClint0;
+    }
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        TransprtDBClint0.Client client = transprtDBClint0.answerMap.get(transprtDBClint0.getLocalId(ctx.channel()));
+        client.dataWriteBack((ByteBuf) msg);
+    }
 
-    class ClientHandle extends ChannelInboundHandlerAdapter {
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            Client client = answerMap.get(getLocalId(ctx.channel()));
-            client.dataWriteBack((ByteBuf) msg);
-        }
-
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-                throws Exception {
-            ctx.close();
-        }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
+            throws Exception {
+        ctx.close();
     }
 }
-

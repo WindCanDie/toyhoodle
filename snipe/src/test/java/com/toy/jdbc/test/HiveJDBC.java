@@ -17,7 +17,7 @@ public class HiveJDBC {
     public void HiveJdbc() throws SQLException, ClassNotFoundException, InterruptedException {
         Class.forName("org.apache.hive.jdbc.HiveDriver");
         String url = "jdbc:hive2://127.0.0.1:10922/hnaudit";
-        CountDownLatch countDownLatch = new CountDownLatch(10);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
         for (int i = 0; i < 1; i++) {
             new Thread(() -> {
                 ResultSet resultSet = null;

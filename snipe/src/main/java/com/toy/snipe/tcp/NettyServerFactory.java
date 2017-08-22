@@ -1,7 +1,7 @@
 package com.toy.snipe.tcp;
 
 import com.toy.snipe.conf.Config;
-import com.toy.snipe.tcp.db.TransprtDBClint;
+import com.toy.snipe.tcp.db.TransprtDBClint0;
 import com.toy.snipe.tcp.db.TransprtDBHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -69,11 +69,11 @@ public class NettyServerFactory {
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true);
-        TransprtDBHandler handler = new TransprtDBHandler(new TransprtDBClint(scheduler));
+        TransprtDBClint0 handler = new TransprtDBClint0(scheduler);
         bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast("handler", handler);
+                ch.pipeline().addLast("handler", new TransprtDBHandler(handler));
             }
         });
         return bootstrap;
