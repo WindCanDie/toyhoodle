@@ -68,13 +68,6 @@ public class TransprtDBClint0 {
         }
 
     }
-
-
-    Channel CreateChanel() {
-
-        return null;
-    }
-
     void wride(ChannelHandlerContext ctx, final ByteBuf byteBuf) throws IOException {
         Client client = cliMap.get(getRemoteId(ctx.channel()));
         client.sendData(byteBuf);
@@ -109,7 +102,7 @@ public class TransprtDBClint0 {
 }
 @ChannelHandler.Sharable
 class ClientHandle extends ChannelInboundHandlerAdapter {
-    TransprtDBClint0 transprtDBClint0;
+    private TransprtDBClint0 transprtDBClint0;
     ClientHandle(TransprtDBClint0 transprtDBClint0){
         this.transprtDBClint0 = transprtDBClint0;
     }
