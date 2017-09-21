@@ -9,6 +9,7 @@
     <modules>
         <module>phone</module>
         <module>core</module>
+        <module>scheduler</module>
     </modules>
     <packaging>pom</packaging>
 
