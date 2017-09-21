@@ -2,6 +2,7 @@ package com.toy.scheduler.job;
 
 import com.toy.scheduler.execute.Executer;
 import com.toy.scheduler.job.element.Action;
+import com.toy.scheduler.job.element.DAGSchedulerEvent;
 import com.toy.scheduler.job.element.Element;
 import com.toy.scheduler.job.element.Selector;
 
@@ -24,41 +25,40 @@ public class DAGScheduler {
     private List<Element> filed;
     private List<Element> run;
     private List<Element> success;
-    private LinkedBlockingQueue<Action> wait;
+    private LinkedBlockingQueue<DAGSchedulerEvent> eventPool;
 
     public DAGScheduler(Properties conf, Executer executer) {
         this.conf = conf;
         this.executer = executer;
-        init();
     }
 
-    public boolean start() throws IOException {
+    public void start() throws IOException {
         run();
         analyizeSubElement(element.getSub());
-        return true;
     }
 
-    private void init() {
-        executer.onSuccess(listener -> {
-            Action action = listener.getTaskContext().getAction();
-            finsh.add(action);
-            try {
-                analyizeSubElement(action.getSub());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        executer.onFailed(listener -> {
-            //TODO ;
-        });
+    public void kill() {
+    }
+
+    public void jobSubmitted(Job job) throws InterruptedException {
+        eventPool.put(new DAGSchedulerEvent.JobSubmitted("JobId", job));
+    }
+
+    public void taskSuccess(Action action) throws IOException, InterruptedException {
+        finsh.add(action);
+        eventPool.put(new DAGSchedulerEvent.TakeSuccess());
+    }
+
+    public void taskFailed(Action action) throws IOException, InterruptedException {
+        filed.add(action);
+        eventPool.put(new DAGSchedulerEvent.TakeFailed());
     }
 
 
     private void analyizeSubElement(List<Element> elements) throws IOException {
         for (Element element : elements) {
             if (element instanceof Action) {
-                if (dependDetection(element))
-                    wait.add((Action) element);
+                if (dependDetection(element)) ; //TODO: end
             } else if (element instanceof Selector) {
                 if (dependDetection(element))
                     analyizeSubElement(element.getSub());
@@ -74,18 +74,37 @@ public class DAGScheduler {
         return finsh.containsAll(element.getDepend());
     }
 
-    public void kill() {
-
-    }
-
     private void run() {
         new Thread(() -> {
             try {
-                Action action = wait.take();
-                executer.executer(action.getTask());
-            } catch (InterruptedException | IOException e) {
+                onReceive(eventPool.take());
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).run();
     }
+
+    private void onReceive(DAGSchedulerEvent event) {
+        if (event instanceof DAGSchedulerEvent.JobSubmitted) {
+            this.handleJobSubmitted((DAGSchedulerEvent.JobSubmitted) event);
+        } else if (event instanceof DAGSchedulerEvent.TakeSuccess) {
+            this.handleTakeSuccess((DAGSchedulerEvent.TakeSuccess) event);
+        } else if (event instanceof DAGSchedulerEvent.TakeFailed) {
+            this.handleTakeFailed((DAGSchedulerEvent.TakeFailed) event);
+        }
+    }
+
+    private void handleJobSubmitted(DAGSchedulerEvent.JobSubmitted job) {
+
+    }
+
+    private void handleTakeSuccess(DAGSchedulerEvent.TakeSuccess job) {
+
+    }
+
+    private void handleTakeFailed(DAGSchedulerEvent.TakeFailed job) {
+
+    }
+
+
 }

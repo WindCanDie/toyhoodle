@@ -1,5 +1,8 @@
 package com.toy.scheduler.execute;
 
+import com.toy.scheduler.job.DAGScheduler;
+import com.toy.scheduler.job.element.Action;
+import com.toy.scheduler.job.element.Selector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +18,8 @@ public abstract class Task {
     private String taskId;
     private TaskContext context;
     private Properties properties;
+    private DAGScheduler scheduler;
+    private Action acition;
 
     public String getTaskId() {
         return taskId;
@@ -24,7 +29,7 @@ public abstract class Task {
 
     }
 
-    public void run() throws IOException {
+    public void run() throws IOException, InterruptedException {
         boolean isSuccess = false;
         try {
             exec();
@@ -32,10 +37,13 @@ public abstract class Task {
         } catch (Exception e) {
             log.error(e.toString());
         }
-        if (isSuccess)
+        if (isSuccess) {
             onSuccess(context);
-        else
+            scheduler.taskSuccess(acition);
+        } else {
             onFailed(context);
+            scheduler.taskFailed(acition);
+        }
     }
 
     protected abstract void exec() throws Exception;
