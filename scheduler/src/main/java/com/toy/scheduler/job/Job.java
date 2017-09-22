@@ -1,4 +1,7 @@
+
 package com.toy.scheduler.job;
+
+import com.toy.scheduler.job.element.Element;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -12,8 +15,21 @@ public class Job {
     private String jobId;
     private String name;
     private Properties Jobconf;
+    private Element.starElment element;
 
-    public void start() throws IOException {
+    public String getJobId() {
+        return jobId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void stimit() throws IOException {
         DAGTask.start();
+    }
+
+    public Element.starElment getElement() {
+        return element;
     }
 }

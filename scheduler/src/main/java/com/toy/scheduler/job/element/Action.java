@@ -8,6 +8,7 @@ import java.util.Properties;
 /**
  * Created by Administrator on
  * 2017/9/20.
+ * init -> before -> action -> after
  */
 public abstract class Action extends Element {
     protected Properties conf;
@@ -16,12 +17,23 @@ public abstract class Action extends Element {
         return null;
     }
 
+    public Properties getConf() {
+        return conf;
+    }
+
     public void setConf(Properties conf) {
         this.conf = conf;
     }
 
     public abstract void init(Properties conf);
 
-    public abstract Task getTask();
+    public abstract void before();
 
+    public abstract void action();
+
+    public abstract void after();
+
+    public abstract void onSuccess();
+
+    public abstract void onFailed();
 }

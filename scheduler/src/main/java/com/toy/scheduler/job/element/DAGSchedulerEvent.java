@@ -1,5 +1,6 @@
 package com.toy.scheduler.job.element;
 
+import com.toy.scheduler.execute.ActionTask;
 import com.toy.scheduler.job.Job;
 
 /**
@@ -23,6 +24,14 @@ public interface DAGSchedulerEvent {
 
     final class TakeFailed implements DAGSchedulerEvent {
 
+    }
+
+    final class TaskSubmitted implements DAGSchedulerEvent {
+        public ActionTask task;
+
+        public TaskSubmitted(ActionTask take) {
+            this.task = take;
+        }
     }
 
     final class TakeStart implements DAGSchedulerEvent {

@@ -1,6 +1,7 @@
 package com.toy.scheduler.job.element;
 
 import com.toy.scheduler.execute.Task;
+import com.toy.scheduler.execute.TaskContext;
 
 import java.util.Properties;
 
@@ -19,7 +20,29 @@ public class CommentAction extends Action {
     }
 
     @Override
-    public Task getTask() {
-        return null;
+    public void before() {
+
+    }
+
+    @Override
+    public void action() {
+
+    }
+
+    @Override
+    public void after() {
+
+    }
+
+    @Override
+    public void onSuccess() {
+
+    }
+
+    @Override
+    public void onFailed() {
+
     }
 }
+
+
