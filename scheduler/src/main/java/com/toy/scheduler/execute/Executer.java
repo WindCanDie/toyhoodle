@@ -14,7 +14,13 @@ public class Executer {
     private Properties config;
     private Listener listener;
 
-    public void executer(Task fun) throws IOException {
+    public void execute(Task task) {
+        try {
+            task.run();
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("execute error " + e);
+        }
     }
 
     public void onSuccess(Consumer<Listener> fun) {

@@ -25,21 +25,19 @@ public class DAGScheduler {
     private Properties conf;
     private Executer executer;
     private Map<String, String> param;
-    private List<Element> finsh;
-    private List<Element> filed;
-    private List<Element> run;
-    private List<Element> success;
+    private LinkedBlockingQueue<Element> finsh;
+    private LinkedBlockingQueue<Element> filed;
+    private LinkedBlockingQueue<Element> run;
+    private LinkedBlockingQueue<Element> success;
     private LinkedBlockingQueue<DAGSchedulerEvent> eventPool;
 
 
     public DAGScheduler(Properties conf, Executer executer) {
         this.conf = conf;
         this.executer = executer;
-    }
-
-    public void start() throws IOException {
         run();
     }
+
 
     public void kill() {
     }
@@ -48,19 +46,19 @@ public class DAGScheduler {
         eventPool.put(new DAGSchedulerEvent.JobSubmitted(CommentUtil.getJobId(), job));
     }
 
-    public void taskStar(Action action) throws InterruptedException {
-        run.add(action);
+    public void taskStar(ActionTask task) throws InterruptedException {
+        run.add(task.getAcition());
         eventPool.put(new DAGSchedulerEvent.TakeStart());
     }
 
-    public void taskSuccess(Action action) throws IOException, InterruptedException {
-        finsh.add(action);
-        eventPool.put(new DAGSchedulerEvent.TakeSuccess());
+    public void taskSuccess(ActionTask task) throws IOException, InterruptedException {
+        finsh.add(task.getAcition());
+        eventPool.put(new DAGSchedulerEvent.TakeSuccess(task));
     }
 
-    public void taskFailed(Action action) throws IOException, InterruptedException {
-        filed.add(action);
-        eventPool.put(new DAGSchedulerEvent.TakeFailed());
+    public void taskFailed(ActionTask task) throws IOException, InterruptedException {
+        filed.add(task.getAcition());
+        eventPool.put(new DAGSchedulerEvent.TakeFailed(task));
     }
 
     private ActionTask getTake(Action action) {
@@ -78,7 +76,8 @@ public class DAGScheduler {
                 if (dependDetection(element))
                     analyizeSubElement(element.getSub());
             } else if (element instanceof Element.endElment) {
-                //TODO: end
+                if (dependDetection(element))
+                    eventPool.put(new DAGSchedulerEvent.JobEnd());
             } else {
                 throw new RuntimeException("can not Element");
             }
@@ -121,15 +120,20 @@ public class DAGScheduler {
     }
 
     private void handleTaskSubmitited(DAGSchedulerEvent.TaskSubmitted task) throws IOException {
-        executer.executer(task.task);
+        executer.execute(task.task);
     }
 
-    private void handleTakeSuccess(DAGSchedulerEvent.TakeSuccess job) {
+    private void handleTakeSuccess(DAGSchedulerEvent.TakeSuccess task) throws Exception {
+        success.put(task.task.getAcition());
+        analyizeSubElement(task.task.getAcition().getSub());
+        log.info("task " + task.task.getTaskId() + "Success");
 
     }
 
-    private void handleTakeFailed(DAGSchedulerEvent.TakeFailed job) {
-
+    private void handleTakeFailed(DAGSchedulerEvent.TakeFailed task) throws Exception {
+        filed.put(task.task.getAcition());
+        analyizeSubElement(task.task.getAcition().getErrorSub());
+        log.info("task " + task.task.getTaskId() + "Failed");
     }
 
 

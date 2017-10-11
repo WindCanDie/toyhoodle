@@ -11,7 +11,7 @@ import java.util.Properties;
  * 2017/9/19.
  */
 public class Job {
-    private DAGScheduler DAGTask;
+    private DAGScheduler scheduler;
     private String jobId;
     private String name;
     private Properties Jobconf;
@@ -26,7 +26,6 @@ public class Job {
     }
 
     public void stimit() throws IOException {
-        DAGTask.start();
     }
 
     public Element.starElment getElement() {

@@ -17,6 +17,9 @@ public class ActionTask extends Task {
     private DAGScheduler scheduler;
     private Action acition;
 
+    public Action getAcition() {
+        return acition;
+    }
 
     public ActionTask(Properties conf, Action action, String taskId, DAGScheduler scheduler) {
         super(conf, taskId);
@@ -27,7 +30,7 @@ public class ActionTask extends Task {
 
     protected void exec() throws Exception {
         log.info("take " + getTaskId() + " start");
-        scheduler.taskStar(acition);
+        scheduler.taskStar(this);
         log.info("take " + getTaskId() + " before");
         acition.before();
 
@@ -42,13 +45,13 @@ public class ActionTask extends Task {
 
     protected void onSuccess(TaskContext context) throws IOException, InterruptedException {
         acition.onSuccess();
-        scheduler.taskSuccess(acition);
+        scheduler.taskSuccess(this);
     }
 
 
     protected void onFailed(TaskContext context) throws IOException, InterruptedException {
         acition.onFailed();
-        scheduler.taskFailed(acition);
+        scheduler.taskFailed(this);
     }
 
 }
