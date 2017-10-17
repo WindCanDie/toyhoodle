@@ -3,6 +3,7 @@ package com.toy.scheduler.job.element;
 import com.toy.scheduler.execute.Task;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -36,4 +37,6 @@ public abstract class Action extends Element {
     public abstract void onSuccess();
 
     public abstract void onFailed();
+
+    public abstract Map<String, String> getReturn();
 }

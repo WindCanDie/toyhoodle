@@ -56,7 +56,7 @@ public interface DAGSchedulerEvent {
     }
 
     final class JobEnd implements DAGSchedulerEvent {
-
+        public String jobid;
     }
 
     final class JobSuccess implements DAGSchedulerEvent {

@@ -30,10 +30,13 @@ public abstract class Element {
         return depend;
     }
 
-    public static final class starElment extends Element {
+    public static final class StarElment extends Element {
     }
 
-    public static final class endElment extends Element {
+    public static final class EndElment extends Element {
+    }
+
+    public static final class KillElment extends Element {
     }
 
 

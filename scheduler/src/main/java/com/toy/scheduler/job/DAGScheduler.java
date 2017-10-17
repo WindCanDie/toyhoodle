@@ -27,9 +27,11 @@ public class DAGScheduler {
     private Map<String, String> param;
     private LinkedBlockingQueue<Element> finsh;
     private LinkedBlockingQueue<Element> filed;
-    private LinkedBlockingQueue<Element> run;
+    private LinkedBlockingQueue<Element> running;
     private LinkedBlockingQueue<Element> success;
     private LinkedBlockingQueue<DAGSchedulerEvent> eventPool;
+    private boolean close = false;
+    private boolean kill = false;
 
 
     public DAGScheduler(Properties conf, Executer executer) {
@@ -39,16 +41,21 @@ public class DAGScheduler {
     }
 
 
-    public void kill() {
-    }
-
     public void jobSubmitted(Job job) throws InterruptedException {
-        eventPool.put(new DAGSchedulerEvent.JobSubmitted(CommentUtil.getJobId(), job));
+        if (close) {
+            throw new RuntimeException("Scheduler has close");
+        } else {
+            eventPool.put(new DAGSchedulerEvent.JobSubmitted(CommentUtil.getJobId(), job));
+        }
     }
 
     public void taskStar(ActionTask task) throws InterruptedException {
-        run.add(task.getAcition());
-        eventPool.put(new DAGSchedulerEvent.TakeStart());
+        if (close) {
+            eventPool.put(new DAGSchedulerEvent.JobEnd());
+        } else {
+            running.add(task.getAcition());
+            eventPool.put(new DAGSchedulerEvent.TakeStart());
+        }
     }
 
     public void taskSuccess(ActionTask task) throws IOException, InterruptedException {
@@ -74,10 +81,12 @@ public class DAGScheduler {
                 }
             } else if (element instanceof Selector) {
                 if (dependDetection(element))
-                    analyizeSubElement(element.getSub());
-            } else if (element instanceof Element.endElment) {
+                    analyizeSubElement(((Selector) element).getSub(param));
+            } else if (element instanceof Element.EndElment) {
                 if (dependDetection(element))
                     eventPool.put(new DAGSchedulerEvent.JobEnd());
+            } else if (element instanceof Element.KillElment) {
+                kill();
             } else {
                 throw new RuntimeException("can not Element");
             }
@@ -99,6 +108,7 @@ public class DAGScheduler {
         }).run();
     }
 
+
     private void onReceive(DAGSchedulerEvent event) throws Exception {
         if (event instanceof DAGSchedulerEvent.JobSubmitted) {
             this.handleJobSubmitted((DAGSchedulerEvent.JobSubmitted) event);
@@ -108,12 +118,22 @@ public class DAGScheduler {
             this.handleTakeSuccess((DAGSchedulerEvent.TakeSuccess) event);
         } else if (event instanceof DAGSchedulerEvent.TakeFailed) {
             this.handleTakeFailed((DAGSchedulerEvent.TakeFailed) event);
+        } else if (event instanceof DAGSchedulerEvent.JobEnd) {
+            this.handleJobEnd((DAGSchedulerEvent.JobEnd) event);
         }
     }
 
+    private void handleJobEnd(DAGSchedulerEvent.JobEnd jobEnd) {
+        log.info("job" + jobEnd.jobid + "success");
+        if (kill) {//TODO: JOb Faile can't user filed
+
+        } else {
+
+        }
+    }
 
     private void handleJobSubmitted(DAGSchedulerEvent.JobSubmitted job) throws Exception {
-        Element.starElment starElment = job.job.getElement();
+        Element.StarElment starElment = job.job.getElement();
         eventPool.put(new DAGSchedulerEvent.JobStart());
         log.info("Job " + job.job.getName() + "start");
         analyizeSubElement(starElment.getSub());
@@ -125,16 +145,25 @@ public class DAGScheduler {
 
     private void handleTakeSuccess(DAGSchedulerEvent.TakeSuccess task) throws Exception {
         success.put(task.task.getAcition());
-        analyizeSubElement(task.task.getAcition().getSub());
         log.info("task " + task.task.getTaskId() + "Success");
-
+        Map<String, String> aReturn = task.task.getAcition().getReturn();
+        param.putAll(aReturn);
+        analyizeSubElement(task.task.getAcition().getSub());
     }
 
     private void handleTakeFailed(DAGSchedulerEvent.TakeFailed task) throws Exception {
         filed.put(task.task.getAcition());
-        analyizeSubElement(task.task.getAcition().getErrorSub());
         log.info("task " + task.task.getTaskId() + "Failed");
+        analyizeSubElement(task.task.getAcition().getErrorSub());
     }
 
+    public void kill() {
+        kill = true;
+        close();
+    }
+
+    private void close() {
+
+    }
 
 }

@@ -1,8 +1,6 @@
 package com.toy.scheduler.job.element;
 
-import com.toy.scheduler.execute.Task;
-import com.toy.scheduler.execute.TaskContext;
-
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -42,6 +40,11 @@ public class CommentAction extends Action {
     @Override
     public void onFailed() {
 
+    }
+
+    @Override
+    public Map<java.lang.String, java.lang.String> getReturn() {
+        return null;
     }
 }
 
