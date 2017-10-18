@@ -4,6 +4,9 @@ import com.toy.scheduler.job.element.DAGSchedulerEvent;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 /**
@@ -13,8 +16,15 @@ import java.util.function.Consumer;
 public class Executer {
     private Properties config;
     private Listener listener;
+    private LinkedBlockingQueue queue = new LinkedBlockingQueue();
+
+    public Executer(Properties config) {
+        this.config = config;
+    }
 
     public void execute(Task task) {
+
+
         try {
             task.run();
         } catch (InterruptedException | IOException e) {
@@ -23,12 +33,9 @@ public class Executer {
         }
     }
 
-    public void onSuccess(Consumer<Listener> fun) {
-        fun.accept(listener);
-    }
 
-    public void onFailed(Consumer<Listener> fun) {
-        fun.accept(listener);
+    public void close() {
+
     }
 }
 

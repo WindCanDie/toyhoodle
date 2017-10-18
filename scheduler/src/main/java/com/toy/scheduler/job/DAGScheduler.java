@@ -51,7 +51,7 @@ public class DAGScheduler {
 
     public void taskStar(ActionTask task) throws InterruptedException {
         if (close) {
-            eventPool.put(new DAGSchedulerEvent.JobEnd());
+            eventPool.put(new DAGSchedulerEvent.TakeFailed(task));
         } else {
             running.add(task.getAcition());
             eventPool.put(new DAGSchedulerEvent.TakeStart());
@@ -83,8 +83,13 @@ public class DAGScheduler {
                 if (dependDetection(element))
                     analyizeSubElement(((Selector) element).getSub(param));
             } else if (element instanceof Element.EndElment) {
-                if (dependDetection(element))
+                if (kill) {
+                    if (running.size() == 0) {
+                        eventPool.put(new DAGSchedulerEvent.JobEnd());
+                    }
+                } else if (dependDetection(element)) {
                     eventPool.put(new DAGSchedulerEvent.JobEnd());
+                }
             } else if (element instanceof Element.KillElment) {
                 kill();
             } else {
@@ -94,7 +99,7 @@ public class DAGScheduler {
     }
 
     private boolean dependDetection(Element element) {
-        return finsh.containsAll(element.getDepend());
+        return finsh.containsAll(element.getDepend()) && filed.containsAll(element.getErrorDepend());
     }
 
     private void run() {
@@ -127,9 +132,9 @@ public class DAGScheduler {
         log.info("job" + jobEnd.jobid + "success");
         if (kill) {//TODO: JOb Faile can't user filed
 
-        } else {
-
         }
+        log.info("JobEnd finsh" + finsh.size() + "  filed  " + filed);
+
     }
 
     private void handleJobSubmitted(DAGSchedulerEvent.JobSubmitted job) throws Exception {
@@ -145,6 +150,7 @@ public class DAGScheduler {
 
     private void handleTakeSuccess(DAGSchedulerEvent.TakeSuccess task) throws Exception {
         success.put(task.task.getAcition());
+        running.remove(task.task.getAcition());
         log.info("task " + task.task.getTaskId() + "Success");
         Map<String, String> aReturn = task.task.getAcition().getReturn();
         param.putAll(aReturn);
@@ -153,8 +159,13 @@ public class DAGScheduler {
 
     private void handleTakeFailed(DAGSchedulerEvent.TakeFailed task) throws Exception {
         filed.put(task.task.getAcition());
+        running.remove(task.task.getAcition());
         log.info("task " + task.task.getTaskId() + "Failed");
-        analyizeSubElement(task.task.getAcition().getErrorSub());
+        if (close) {
+            analyizeSubElement(List.of(new Element.EndElment()));
+        } else {
+            analyizeSubElement(task.task.getAcition().getErrorSub());
+        }
     }
 
     public void kill() {
@@ -163,7 +174,8 @@ public class DAGScheduler {
     }
 
     private void close() {
-
+        close = true;
+        executer.close();
     }
 
 }
