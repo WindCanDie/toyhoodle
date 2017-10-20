@@ -13,7 +13,16 @@ public abstract class Element {
     protected List<Element> errorSub;
     protected List<Element> depend;
     protected List<Element> errorDepend;
+    protected String name;
 
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public List<Element> getErrorSub() {
         return errorSub;
@@ -28,9 +37,30 @@ public abstract class Element {
         return sub;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setSub(List<Element> sub) {
+        this.sub = sub;
+    }
+
+    public void setErrorSub(List<Element> errorSub) {
+        this.errorSub = errorSub;
+    }
+
+    public void setDepend(List<Element> depend) {
+        this.depend = depend;
+    }
+
+    public void setErrorDepend(List<Element> errorDepend) {
+        this.errorDepend = errorDepend;
+    }
+
     public List<Element> getDepend() {
         return depend;
     }
+
     public List<Element> getErrorDepend() {
         return errorDepend;
     }

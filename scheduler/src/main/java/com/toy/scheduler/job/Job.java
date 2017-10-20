@@ -10,18 +10,17 @@ import java.util.Properties;
  * Created by Administrator on
  * 2017/9/19.
  */
-public class Job {
-    private String jobId;
-    private String name;
+public class Job extends Element {
     private Properties Jobconf;
     private Element.StarElment element;
 
-    public String getJobId() {
-        return jobId;
+    public Job() {
+
     }
 
-    public String getName() {
-        return name;
+    public Job(String name, String id) {
+        super.name = name;
+        super.id = id;
     }
 
     public void stimit() throws IOException {
@@ -29,5 +28,9 @@ public class Job {
 
     public Element.StarElment getElement() {
         return element;
+    }
+
+    public void setElement(StarElment element) {
+        this.element = element;
     }
 }

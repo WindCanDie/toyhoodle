@@ -16,26 +16,20 @@ import java.util.function.Consumer;
 public class Executer {
     private Properties config;
     private Listener listener;
-    private LinkedBlockingQueue queue = new LinkedBlockingQueue();
+    private ExecutorService threadPool;
+
 
     public Executer(Properties config) {
         this.config = config;
     }
 
     public void execute(Task task) {
-
-
-        try {
-            task.run();
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("execute error " + e);
-        }
+        threadPool.execute(task::run);
     }
 
 
     public void close() {
-
+        threadPool.shutdown();
     }
 }
 

@@ -16,6 +16,7 @@ public class ActionTask extends Task {
     private Logger log = LoggerFactory.getLogger(ActionTask.class);
     private DAGScheduler scheduler;
     private Action acition;
+    private Properties conf;
 
     public Action getAcition() {
         return acition;
@@ -31,6 +32,7 @@ public class ActionTask extends Task {
     protected void exec() throws Exception {
         log.info("take " + getTaskId() + " start");
         scheduler.taskStar(this);
+        acition.init(conf);
         log.info("take " + getTaskId() + " before");
         acition.before();
 

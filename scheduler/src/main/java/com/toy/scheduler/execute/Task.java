@@ -13,7 +13,7 @@ import java.util.Properties;
  * Created by Administrator on
  * 2017/9/19.
  */
-public abstract class Task {
+public abstract class Task implements Runnable {
     private Logger log = LoggerFactory.getLogger(Task.class);
     private String taskId;
     private TaskContext context;
@@ -28,7 +28,7 @@ public abstract class Task {
         this.taskId = taskId;
     }
 
-    public void run() throws IOException, InterruptedException {
+    public void run() {
         boolean isSuccess = false;
         try {
             exec();
@@ -37,9 +37,21 @@ public abstract class Task {
             log.error(e.toString());
         }
         if (isSuccess) {
-            onSuccess(context);
+            try {
+                onSuccess(context);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else {
-            onFailed(context);
+            try {
+                onFailed(context);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
