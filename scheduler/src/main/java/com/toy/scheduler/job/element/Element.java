@@ -1,5 +1,8 @@
 package com.toy.scheduler.job.element;
 
+import com.toy.scheduler.util.CommentUtil;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +18,18 @@ public abstract class Element {
     protected List<Element> errorDepend;
     protected String name;
 
+    public Element(String name) {
+        this(CommentUtil.getUUID(), name);
+    }
+
+    public Element(String id, String name) {
+        this.id = id;
+        this.name = name;
+        this.sub = new ArrayList<>();
+        this.errorSub = new ArrayList<>();
+        this.depend = new ArrayList<>();
+        this.errorDepend = new ArrayList<>();
+    }
 
     public String getName() {
         return name;
@@ -66,11 +81,38 @@ public abstract class Element {
     }
 
     public static final class StarElment extends Element {
+        public static final String START = "start";
+
+        public StarElment() {
+            super(START);
+        }
+
+        public StarElment(String id, String name) {
+            super(id, name);
+        }
     }
 
     public static final class EndElment extends Element {
+        public static final String END = "end";
+
+        public EndElment() {
+            super(END);
+        }
+
+        public EndElment(String id, String name) {
+            super(id, name);
+        }
     }
 
     public static final class KillElment extends Element {
+        public static final String KILL = "kill";
+
+        public KillElment() {
+            super(KILL);
+        }
+
+        public KillElment(String id, String name) {
+            super(id, name);
+        }
     }
 }

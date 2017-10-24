@@ -2,8 +2,11 @@ package com.toy.api;
 
 import com.toy.scheduler.job.Job;
 import com.toy.scheduler.job.element.Element;
+import com.toy.scheduler.util.CommentUtil;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ProperJob {
     private String jobName;
@@ -14,25 +17,38 @@ public class ProperJob {
     private Element.EndElment endElment = new Element.EndElment();
     private Element.KillElment killElment = new Element.KillElment();
 
+    public ProperJob(String jobName) {
+        this(CommentUtil.getJobId(), jobName);
+    }
+
     public ProperJob(String jobName, String jobId) {
         this.jobName = jobName;
         this.jobId = jobId;
+        this.topology = new ConcurrentHashMap<>();
     }
 
-    public ProperJob setStar(Element element, String elementName) {
+    public ProperJob setStar(Element element) {
         Element startElement = topology.putIfAbsent(START, this.startElement);
-        topology.put(elementName, element);
+        if (startElement == null)
+            startElement = this.startElement;
+        topology.put(element.getName(), element);
         startElement.getSub().add(element);
+        element.getDepend().add(startElement);
         return this;
     }
 
-    public ProperJob setFollow(Element element, String elementName, String followName) {
+    public ProperJob setFollow(Element element, String followName) {
+        if (START.equals(followName)) {
+            setStar(element);
+            return this;
+        }
         Element followElement = topology.get(followName);
         if (followElement == null) {
             throw new RuntimeException("not follow" + followName);
         }
         element.getDepend().add(followElement);
         followElement.getSub().add(element);
+        topology.put(element.getName(), element);
         return this;
     }
 
@@ -48,13 +64,17 @@ public class ProperJob {
 
 
     public Job build() {
-        Job job = new Job();
+        Job job = new Job(jobName, jobId);
         replenishKillAndEnd();
         job.setElement(startElement);
-        return null;
+        return job;
     }
 
-    public void replenishKillAndEnd() {
+    private void replenishKillAndEnd() {
+        if (topology.size() == 0) {
+            startElement.getSub().add(endElment);
+            return;
+        }
         for (Map.Entry<String, Element> m : topology.entrySet()) {
             Element e = m.getValue();
             if (!startElement.equals(e)) {

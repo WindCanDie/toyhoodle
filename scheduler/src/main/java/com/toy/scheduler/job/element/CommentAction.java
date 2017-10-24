@@ -11,6 +11,14 @@ public class CommentAction extends Action {
     String cmd;
     String[] arge;
 
+    public CommentAction(String name) {
+        super(name);
+    }
+
+    public CommentAction(String id, String name) {
+        super(id, name);
+    }
+
 
     @Override
     public void init(Properties conf) {

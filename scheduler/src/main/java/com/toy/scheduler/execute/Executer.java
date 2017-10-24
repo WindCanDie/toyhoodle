@@ -21,10 +21,12 @@ public class Executer {
 
     public Executer(Properties config) {
         this.config = config;
+        //TODO:
+        this.threadPool = Executors.newFixedThreadPool(4);
     }
 
     public void execute(Task task) {
-        threadPool.execute(task::run);
+        threadPool.execute(task);
     }
 
 

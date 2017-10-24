@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -37,6 +38,12 @@ public class DAGScheduler {
     public DAGScheduler(Properties conf, Executer executer) {
         this.conf = conf;
         this.executer = executer;
+        this.param = new ConcurrentHashMap<>();
+        this.finsh = new LinkedBlockingQueue<>();
+        this.filed = new LinkedBlockingQueue<>();
+        this.running = new LinkedBlockingQueue<>();
+        this.eventPool = new LinkedBlockingQueue<>();
+        this.success = new LinkedBlockingQueue<>();
         run();
     }
 
@@ -99,18 +106,20 @@ public class DAGScheduler {
     }
 
     private boolean dependDetection(Element element) {
-        return finsh.containsAll(element.getDepend()) && filed.containsAll(element.getErrorDepend());
+        return finsh.containsAll(element.getDepend()) || filed.containsAll(element.getErrorDepend());
     }
 
     private void run() {
         new Thread(() -> {
-            try {
-                onReceive(eventPool.take());
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error(e.getMessage());
+            while (true) {
+                try {
+                    onReceive(eventPool.take());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log.error(e.getMessage());
+                }
             }
-        }).run();
+        }).start();
     }
 
 
@@ -141,6 +150,7 @@ public class DAGScheduler {
         Element.StarElment starElment = job.job.getElement();
         eventPool.put(new DAGSchedulerEvent.JobStart());
         log.info("Job " + job.job.getName() + "start");
+        finsh.add(starElment);
         analyizeSubElement(starElment.getSub());
     }
 

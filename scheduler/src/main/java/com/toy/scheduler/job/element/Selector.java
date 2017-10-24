@@ -14,6 +14,14 @@ import java.util.Map;
 public class Selector extends Element {
     List<Path> list = null;
 
+    public Selector(String name) {
+        super(name);
+    }
+
+    public Selector(String id, String name) {
+        super(id, name);
+    }
+
     public List<Element> getSub(Map<String, String> param) throws ScriptException {
         List<Element> elements = new ArrayList<>();
         for (Path obj : list) {

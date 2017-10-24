@@ -14,14 +14,14 @@ public class Job extends Element {
     private Properties Jobconf;
     private Element.StarElment element;
 
-    public Job() {
-
+    public Job(String name) {
+        super(name);
     }
 
-    public Job(String name, String id) {
-        super.name = name;
-        super.id = id;
+    public Job(String id, String name) {
+        super(id, name);
     }
+
 
     public void stimit() throws IOException {
     }

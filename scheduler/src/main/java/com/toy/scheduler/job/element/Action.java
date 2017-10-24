@@ -14,6 +14,14 @@ import java.util.Properties;
 public abstract class Action extends Element {
     protected Properties conf;
 
+    public Action(String name) {
+        super(name);
+    }
+
+    public Action(String id, String name) {
+        super(id, name);
+    }
+
     public List<Element> errorElement() {
         return null;
     }
