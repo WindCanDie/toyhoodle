@@ -17,7 +17,6 @@ public abstract class Action extends Element {
     public Action(String name) {
         super(name);
     }
-
     public Action(String id, String name) {
         super(id, name);
     }

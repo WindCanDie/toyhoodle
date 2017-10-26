@@ -51,10 +51,10 @@ public class APITest {
     @Test
     public void smitubJob() throws InterruptedException {
         ProperJob properJob = new ProperJob("job1");
-        ActionTest comm11 = new ActionTest("comm11");
-        ActionTest comm12 = new ActionTest("comm12");
-        ActionTest comm21 = new ActionTest("comm21");
-        ActionTest comm22 = new ActionTest("comm22");
+        ActionTest comm11 = new ActionTest("1", "comm11");
+        ActionTest comm12 = new ActionTest("2", "comm12");
+        ActionTest comm21 = new ActionTest("3", "comm21");
+        ActionTest comm22 = new ActionTest("4", "comm22");
         properJob.setStar(comm11);
         properJob.setStar(comm12);
         properJob.setFollow(comm21, "comm11");
