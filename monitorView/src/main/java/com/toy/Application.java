@@ -1,5 +1,6 @@
 package com.toy;
 
+import com.toy.h2.H2DB;
 import org.springframework.boot.SpringApplication;
 
 /**
@@ -9,13 +10,12 @@ import org.springframework.boot.SpringApplication;
 
 public class Application {
     public static void main(String[] args) throws Exception {
+        H2DB db = new H2DB();
+        db.start();
+
         WebStart.webStar(args);
     }
-
-    public static void webStar(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
+    
 
 
 }
