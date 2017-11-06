@@ -1,6 +1,8 @@
 package com.toy.cube.lql;
 
 import com.toy.cube.datasource.JdbcData;
+import com.toy.cube.function.Function;
+import com.toy.cube.util.FunctionUtil;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,6 +17,7 @@ public class Exe {
     private JdbcData jdbcData;
     private Map<String, Connection> connectionMap = new HashMap<>();
     private List<Action> actions = new ArrayList<>();
+    private Map<String, Class<? extends Function>> functionMap = new HashMap<>();
 
     public Param getParam(String name) {
         Param param = paramMap.get(name);
@@ -34,7 +37,9 @@ public class Exe {
 
     public Exe() {
         jdbcData = new JdbcData();
+        functionMap = FunctionUtil.getFunctionMap();
     }
+
 
     public Connection getConnection(String name) {
         return connectionMap.get(name);
@@ -54,5 +59,8 @@ public class Exe {
 
     public List<Action> getAction() {
         return actions;
+    }
+    public Class<? extends Function> getFunction(String name){
+        return functionMap.get(name);
     }
 }

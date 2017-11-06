@@ -1,8 +1,11 @@
 package com.toy.cube.lql;
 
 import com.toy.cube.datasource.JdbcData;
+import com.toy.cube.function.Function;
 import com.toy.cube.util.StringUtil;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -49,7 +52,7 @@ public class Analyize {
         }
         if (action instanceof Action.ASSIGNMENT) {
             Action.ASSIGNMENT assignment = (Action.ASSIGNMENT) action;
-            assignment.param.value = getParamValue(assignment.value);
+            assignment.param.value = assignmentAnalyize(assignment.value);
         }
         if (action instanceof Action.QUERY) {
             Action.QUERY query = (Action.QUERY) action;
@@ -135,6 +138,40 @@ public class Analyize {
         }
         throw new RuntimeException("If can not " + split[2]);
     }
+
+    private Object assignmentAnalyize(String v) {
+        if (v.contains("(") && v.endsWith(")")) {
+            String[] spileFunction = v.split("[(]");
+
+            String functionName = spileFunction[0];
+            String[] param = spileFunction[1].substring(0, spileFunction[1].length() - 1).split(",");
+
+            Object[] paramv = new Object[param.length];
+            Class[] paramtype = new Class[param.length];
+
+            for (int i = 0; i < param.length; i++) {
+                paramv[i] = getParamValue(param[i]);
+                paramtype[i] = paramv.getClass();
+            }
+            Class<? extends Function> functionClazz = exe.getFunction(functionName);
+            Object result = null;
+            try {
+                Method exec =   functionClazz.getDeclaredMethod("exec", paramtype);
+                try {
+                    result =  exec.invoke(functionClazz.newInstance(),paramv);
+                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                throw  new RuntimeException("function is not exeit");
+            }
+            return result;
+        } else {
+            return getParamValue(v);
+        }
+    }
+
 
     @SuppressWarnings("unchecked ")
     private Object getParamValue(String param) {
