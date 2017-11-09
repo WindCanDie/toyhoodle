@@ -56,7 +56,7 @@ public class Analyize {
         }
         if (action instanceof Action.QUERY) {
             Action.QUERY query = (Action.QUERY) action;
-            List<Map<String, Object>> r = JdbcData.query(query.conn, paramChage(query.sql, true));
+            List<Map<String, Object>> r = JdbcData.query(query.conn, paramChage(query.sql));
             if (query.name != null)
                 query.name.value = r;
         }
@@ -80,7 +80,7 @@ public class Analyize {
         }
     }
 
-    private String paramChage(final String v, boolean issql) {
+    private String paramChage(final String v) {
         int startIndex;
         String chage = v;
         while ((startIndex = chage.indexOf("@")) != -1) {
@@ -92,7 +92,7 @@ public class Analyize {
                 paramName = chage.substring(startIndex, endIndex);
             Param param = exe.getParam(paramName);
 
-            if (issql && param.dataType == Param.DataType.String)
+            if (param.dataType == Param.DataType.String)
                 chage = chage.replace(paramName, "'" + param.value + "'");
             else
                 chage = chage.replace(paramName, param.value.toString());
@@ -145,19 +145,18 @@ public class Analyize {
             String[] spileFunction = v.split("[(]");
 
             String functionName = spileFunction[0];
-            String[] param = paramChage(spileFunction[1].substring(0, spileFunction[1].length() - 1),false).split(",");
+            String[] param = paramChage(spileFunction[1].substring(0, spileFunction[1].length() - 1)).split(",");
 
             Class[] paramtype = new Class[param.length];
 
             for (int i = 0; i < param.length; i++) {
-                //TODO:数据类型判断
-                paramtype[i] = String.class;
+                paramtype[i] = getDataType(param[i]);
             }
             Class<? extends Function> functionClazz = exe.getFunction(functionName);
-            Object result = null;
+            Object result;
             try {
                 Method exec = functionClazz.getDeclaredMethod("exec", paramtype);
-                result = exec.invoke(functionClazz.newInstance(), param);
+                result = exec.invoke(functionClazz.newInstance(), (Object[]) param);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
                 throw new RuntimeException("function is not exeit");
@@ -171,6 +170,15 @@ public class Analyize {
         }
     }
 
+    private Class getDataType(String v) {
+        if (v.startsWith("'") && v.endsWith("'")) {
+            return String.class;
+        } else if (v.contains(".")) {
+            return Double.class;
+        } else {
+            return Integer.class;
+        }
+    }
 
     @SuppressWarnings("unchecked ")
     private Object getParamValue(String param) {
