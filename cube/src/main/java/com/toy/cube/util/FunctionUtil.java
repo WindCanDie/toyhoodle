@@ -9,7 +9,7 @@ import java.util.Map;
 public class FunctionUtil {
     public static Map<String, Class<? extends Function>> getFunctionMap() {
         Map<String, Class<? extends Function>> functionMap = new HashMap<>();
-        functionMap.put("DateAdd", DateAdd.class);
+        functionMap.put("DATEADD", DateAdd.class);
         return functionMap;
     }
 }

@@ -56,7 +56,7 @@ public class Analyize {
         }
         if (action instanceof Action.QUERY) {
             Action.QUERY query = (Action.QUERY) action;
-            List<Map<String, Object>> r = JdbcData.query(query.conn, sqlParamChage(query.sql));
+            List<Map<String, Object>> r = JdbcData.query(query.conn, paramChage(query.sql, true));
             if (query.name != null)
                 query.name.value = r;
         }
@@ -80,9 +80,9 @@ public class Analyize {
         }
     }
 
-    private String sqlParamChage(final String sql) {
+    private String paramChage(final String v, boolean issql) {
         int startIndex;
-        String chage = sql;
+        String chage = v;
         while ((startIndex = chage.indexOf("@")) != -1) {
             int endIndex = getEndIndex(chage, startIndex);
             String paramName;
@@ -91,7 +91,8 @@ public class Analyize {
             else
                 paramName = chage.substring(startIndex, endIndex);
             Param param = exe.getParam(paramName);
-            if (param.dataType == Param.DataType.String)
+
+            if (issql && param.dataType == Param.DataType.String)
                 chage = chage.replace(paramName, "'" + param.value + "'");
             else
                 chage = chage.replace(paramName, param.value.toString());
@@ -144,27 +145,25 @@ public class Analyize {
             String[] spileFunction = v.split("[(]");
 
             String functionName = spileFunction[0];
-            String[] param = spileFunction[1].substring(0, spileFunction[1].length() - 1).split(",");
+            String[] param = paramChage(spileFunction[1].substring(0, spileFunction[1].length() - 1),false).split(",");
 
-            Object[] paramv = new Object[param.length];
             Class[] paramtype = new Class[param.length];
 
             for (int i = 0; i < param.length; i++) {
-                paramv[i] = getParamValue(param[i]);
-                paramtype[i] = paramv.getClass();
+                //TODO:数据类型判断
+                paramtype[i] = String.class;
             }
             Class<? extends Function> functionClazz = exe.getFunction(functionName);
             Object result = null;
             try {
-                Method exec =   functionClazz.getDeclaredMethod("exec", paramtype);
-                try {
-                    result =  exec.invoke(functionClazz.newInstance(),paramv);
-                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                    e.printStackTrace();
-                }
+                Method exec = functionClazz.getDeclaredMethod("exec", paramtype);
+                result = exec.invoke(functionClazz.newInstance(), param);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
-                throw  new RuntimeException("function is not exeit");
+                throw new RuntimeException("function is not exeit");
+            } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                e.printStackTrace();
+                throw new RuntimeException("function  runned failed");
             }
             return result;
         } else {

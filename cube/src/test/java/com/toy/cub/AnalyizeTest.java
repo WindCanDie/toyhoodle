@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class AnalyizeTest {
     @Test
     public void analyizeTest() throws IOException, SQLException, ClassNotFoundException {
-        ReadFile readFile = new ReadFile("E:\\cube\\src\\main\\resources\\APP_CreateWarnAudit31.wql");
+        ReadFile readFile = new ReadFile("E:\\ljx\\cube\\src\\main\\resources\\APP_CreateWarnAudit31.wql");
         Compile analyize = new Compile(readFile);
         Exe exe = analyize.compile();
         Analyize analyize1 = new Analyize(exe);
