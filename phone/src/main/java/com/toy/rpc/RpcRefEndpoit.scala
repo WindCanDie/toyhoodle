@@ -1,5 +1,5 @@
 package com.toy.rpc
 
-trait RpcRefEndpoit {
+class RpcRefEndpoit {
 
 }

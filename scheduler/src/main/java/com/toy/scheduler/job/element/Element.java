@@ -3,7 +3,9 @@ package com.toy.scheduler.job.element;
 import com.toy.scheduler.util.CommentUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on
@@ -14,8 +16,7 @@ public abstract class Element {
     protected String id;
     protected List<Element> sub;
     protected List<Element> errorSub;
-    protected List<Element> depend;
-    protected List<Element> errorDepend;
+    protected Map<String, List<Element>> depend;
     protected String name;
 
     public Element(String name) {
@@ -27,8 +28,9 @@ public abstract class Element {
         this.name = name;
         this.sub = new ArrayList<>();
         this.errorSub = new ArrayList<>();
-        this.depend = new ArrayList<>();
-        this.errorDepend = new ArrayList<>();
+        this.depend = new HashMap<>();
+        this.depend.put("success", new ArrayList<>());
+        this.depend.put("field", new ArrayList<>());
     }
 
     public String getName() {
@@ -65,19 +67,19 @@ public abstract class Element {
     }
 
     public void setDepend(List<Element> depend) {
-        this.depend = depend;
+        this.depend.put("success", depend);
     }
 
     public void setErrorDepend(List<Element> errorDepend) {
-        this.errorDepend = errorDepend;
+        this.depend.put("faile", errorDepend);
     }
 
     public List<Element> getDepend() {
-        return depend;
+        return depend.get("success");
     }
 
     public List<Element> getErrorDepend() {
-        return errorDepend;
+        return depend.get("faile");
     }
 
     public static final class StarElment extends Element {

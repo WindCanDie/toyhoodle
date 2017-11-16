@@ -1,5 +1,12 @@
 package com.toy.rpc
 
-class Evn() {
+class RpcEvn() {
 
+  def getRefEndpoit(url: String): RpcRefEndpoit = {
+    new RpcRefEndpoit
+  }
+
+  def getRefEndpoit(endpoit: RpcEndpoint): RpcRefEndpoit = {
+    new RpcRefEndpoit
+  }
 }

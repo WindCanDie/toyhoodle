@@ -18,12 +18,16 @@ public interface DAGSchedulerEvent {
         }
     }
 
-    final class TakeSuccess implements DAGSchedulerEvent {
+    final class TaskSuccess implements DAGSchedulerEvent {
         public ActionTask task;
 
-        public TakeSuccess(ActionTask task) {
+        public TaskSuccess(ActionTask task) {
             this.task = task;
         }
+    }
+
+    final class TaskKill implements DAGSchedulerEvent {
+
     }
 
 
@@ -47,7 +51,7 @@ public interface DAGSchedulerEvent {
 
     }
 
-    final class TakeStart implements DAGSchedulerEvent {
+    final class TaskStart implements DAGSchedulerEvent {
 
     }
 

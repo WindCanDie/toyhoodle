@@ -61,18 +61,22 @@ public class DAGScheduler {
             eventPool.put(new DAGSchedulerEvent.TakeFailed(task));
         } else {
             running.add(task.getAcition());
-            eventPool.put(new DAGSchedulerEvent.TakeStart());
+            eventPool.put(new DAGSchedulerEvent.TaskStart());
         }
     }
 
     public void taskSuccess(ActionTask task) throws IOException, InterruptedException {
         finsh.add(task.getAcition());
-        eventPool.put(new DAGSchedulerEvent.TakeSuccess(task));
+        eventPool.put(new DAGSchedulerEvent.TaskSuccess(task));
     }
 
     public void taskFailed(ActionTask task) throws IOException, InterruptedException {
         filed.add(task.getAcition());
         eventPool.put(new DAGSchedulerEvent.TakeFailed(task));
+    }
+
+    public void taskKill(ActionTask task) throws InterruptedException {
+        eventPool.put(new DAGSchedulerEvent.TaskKill());
     }
 
     private ActionTask getTake(Action action) {
@@ -90,11 +94,7 @@ public class DAGScheduler {
                 if (dependDetection(element))
                     analyizeSubElement(((Selector) element).getSub(param));
             } else if (element instanceof Element.EndElment) {
-                if (kill) {
-                    if (running.size() == 0) {
-                        eventPool.put(new DAGSchedulerEvent.JobEnd());
-                    }
-                } else if (dependDetection(element)) {
+                if (dependDetection(element)) {
                     eventPool.put(new DAGSchedulerEvent.JobEnd());
                 }
             } else if (element instanceof Element.KillElment) {
@@ -128,13 +128,21 @@ public class DAGScheduler {
             this.handleJobSubmitted((DAGSchedulerEvent.JobSubmitted) event);
         } else if (event instanceof DAGSchedulerEvent.TaskSubmitted) {
             this.handleTaskSubmitited((DAGSchedulerEvent.TaskSubmitted) event);
-        } else if (event instanceof DAGSchedulerEvent.TakeSuccess) {
-            this.handleTakeSuccess((DAGSchedulerEvent.TakeSuccess) event);
+        } else if (event instanceof DAGSchedulerEvent.TaskSuccess) {
+            this.handleTakeSuccess((DAGSchedulerEvent.TaskSuccess) event);
         } else if (event instanceof DAGSchedulerEvent.TakeFailed) {
             this.handleTakeFailed((DAGSchedulerEvent.TakeFailed) event);
         } else if (event instanceof DAGSchedulerEvent.JobEnd) {
             this.handleJobEnd((DAGSchedulerEvent.JobEnd) event);
+        } else if (event instanceof DAGSchedulerEvent.TaskKill) {
+            this.handleTaskKill();
+        } else {
+            throw new RuntimeException("");
         }
+    }
+
+    private void handleTaskKill() {
+
     }
 
     private void handleJobEnd(DAGSchedulerEvent.JobEnd jobEnd) {
@@ -158,7 +166,7 @@ public class DAGScheduler {
         executer.execute(task.task);
     }
 
-    private void handleTakeSuccess(DAGSchedulerEvent.TakeSuccess task) throws Exception {
+    private void handleTakeSuccess(DAGSchedulerEvent.TaskSuccess task) throws Exception {
         success.put(task.task.getAcition());
         running.remove(task.task.getAcition());
         log.info("task " + task.task.getTaskId() + "Success");
