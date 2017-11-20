@@ -60,16 +60,16 @@
   FOREACH mycursor @WarnConfigId,@Value1,@Value2,@Value3,@Value4,@Value5,@Value6,@Value7,@Value8,@Value9
     IF @PkiIndustry == 1
     IF @Value1 > 0
-    		 @BeginDate ="2017-08-07"
+    		 @BeginDate = @BeginTime
     		 @SmallType = 1
     	QUERY impala
         	insert into App_WarnAudit(WarnConfigId,WarnType,SmallType,WarnLevel,
         	            WarnContent,
         				KeyWord,WarnNumber,UniqueId,PkiUserId,TitleId,UpdateTime)
         	select @WarnConfigId,@WarnType,@SmallType,@WarnLevel,
-        						'查询社会人员共<span class="Jcont">'+convert(varchar(10),IDnum)+'</span>个',
+        						concat('查询社会人员共<span class="Jcont">',cast(IDnum as string),'</span>个'),
         						'',IDnum,0,PkiUserId,0,UpdateTime
-        	from App_StatisticsPkiDay
+        	from App_PkiDay
         					where UpdateTime = @BeginDate and IDnum >= @Value1
           ENDQUERY
     ENDIF
@@ -80,138 +80,90 @@
             						WarnContent,
             						KeyWord,WarnNumber,UniqueId,PkiUserId,TitleId,UpdateTime)
             					select @WarnConfigId,@WarnType,@SmallType,@WarnLevel,
-            						'访问总次数共<span class="Jcont">'+convert(varchar(10),LoginNum)+'</span>次',
+            					concat('访问总次数共<span class="Jcont">',cast(LoginNum as string),'</span>次'),
             						'',LoginNum,0,PkiUserId,0,UpdateTime
-            					from App_StatisticsPkiDay
+            					from App_PkiDay
             					where UpdateTime = @BeginDate and LoginNum >= @Value2
         ENDQUERY
     ENDIF
     IF @Value4 > 0
-        @BeginDate =  DATEADD(dd,-@Value3,@EndDate)
+        @BeginDate =  DATEADD(@EndDate,-@Value3)
         @SmallType = 3
         QUERY impala
-        	Update App_WarnAudit set WarnContent = '持续<span class="Jcont">'+convert(varchar(10),WarnNumber+1)+'</span>天查询社会人员超过'+convert(varchar(10),@Value4)+'个',
-        	WarnNumber = WarnNumber+1,UpdateTime = @EndDate
-        	from App_WarnAudit w
-        	inner join (select PkiUserId,''
-                        	from
-                        	(select PkiUserId,UpdateTime
-                        	from App_StatisticsPkiDay
-                        	where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and IDnum >= @Value4) d
-                        	group by PkiUserId
-                        	having count(1) >= @Value3) u on w.PkiUserId = u.PkiUserId
-        	where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = dateadd(dd,-1,@EndDate)
-        ENDQUERY
-        QUERY impala
-        Update App_WarnAudit set WarnContent = '持续<span class="Jcont">'+convert(varchar(10),WarnNumber+1)+'</span>天查询社会人员超过'+convert(varchar(10),@Value4)+'个',
-        					WarnNumber = WarnNumber+1,UpdateTime = @EndDate
-        					from App_WarnAudit w
-        					inner join(select PkiUserId,''
-                                       					from
-                                       						(select PkiUserId,UpdateTime
-                                       						from App_StatisticsPkiDay
-                                       						where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and IDnum >= @Value4) d
-                                       					group by PkiUserId
-                                       					having count(1) >= @Value3) u on w.PkiUserId = u.PkiUserId
-        					where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = dateadd(dd,-1,@EndDate)
+             DELETE FROM App_WarnAudit WHERE  WarnConfigId = @WarnConfigId and SmallType = @SmallType and UpdateTime = to_date(date_add(@EndDate,-1))
         ENDQUERY
         QUERY impala
         	insert into App_WarnAudit(WarnConfigId,WarnType,SmallType,WarnLevel,
         						WarnContent,
         						KeyWord,WarnNumber,UniqueId,PkiUserId,TitleId,UpdateTime)
         					select @WarnConfigId,@WarnType,@SmallType,@WarnLevel,
-        						'持续<span class="Jcont">'+convert(varchar(10),@Value3)+'</span>天查询社会人员超过'+convert(varchar(10),@Value4)+'个',
+        						concat('持续<span class="Jcont">',cast(@Value3 as string),'</span>天查询社会人员超过',cast(@Value4 as string),'个'),
         						'',@Value3,0,PkiUserId,0,@EndDate
         					from (select PkiUserId,''
                                   					from
                                   						(select PkiUserId,UpdateTime
-                                  						from App_StatisticsPkiDay
+                                  						from App_PkiDay
                                   						where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and IDnum >= @Value4) d
                                   					group by PkiUserId
                                   					having count(1) >= @Value3) u
-                where not exists(select * from App_WarnAudit w where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = dateadd(dd,-1,@EndDate) and w.PkiUserId = u.PkiUserId)
+                where not exists(select * from App_WarnAudit w where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = to_date(date_add(@EndDate,-1)) and w.PkiUserId = u.PkiUserId)
         ENDQUERY
     ENDIF
     IF @Value5 > 0
      @SmallType = 4
-          QUERY impala
-            Update App_WarnAudit set WarnContent = '持续<span class="Jcont">'+convert(varchar(10),WarnNumber+1)+'</span>天访问总数超过'+convert(varchar(10),@Value5)+'次',
-            					WarnNumber = WarnNumber+1,UpdateTime = @EndDate
-            					from App_WarnAudit w
-            					inner join (select PkiUserId,''
-                                            					from
-                                            						(select PkiUserId,UpdateTime
-                                            						from App_StatisticsPkiDay
-                                            						where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and LoginNum >= @Value5) d
-                                            					group by PkiUserId
-                                            					having count(1) >= @Value3) u on w.PkiUserId = u.PkiUserId
-            					where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = dateadd(dd,-1,@EndDate)
-          ENDQUERY
-          QUERY impala
-            Update App_WarnAudit set WarnContent = '持续<span class="Jcont">'+convert(varchar(10),WarnNumber+1)+'</span>天访问总数超过'+convert(varchar(10),@Value5)+'次',
-            					WarnNumber = WarnNumber+1,UpdateTime = @EndDate
-            					from App_WarnAudit w
-            					inner join (select PkiUserId,''
-                                            					from
-                                            						(select PkiUserId,UpdateTime
-                                            						from App_StatisticsPkiDay
-                                            						where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and LoginNum >= @Value5) d
-                                            					group by PkiUserId
-                                            					having count(1) >= @Value3) u on w.PkiUserId = u.PkiUserId
-            					where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = dateadd(dd,-1,@EndDate)
-          ENDQUERY
+           QUERY impala
+               DELETE FROM App_WarnAudit WHERE  WarnConfigId = @WarnConfigId and SmallType = @SmallType and UpdateTime = to_date(date_add(@EndDate,-1))
+           ENDQUERY
           QUERY impala
               insert into App_WarnAudit(WarnConfigId,WarnType,SmallType,WarnLevel,
               						WarnContent,
               						KeyWord,WarnNumber,UniqueId,PkiUserId,TitleId,UpdateTime)
               					select @WarnConfigId,@WarnType,@SmallType,@WarnLevel,
-              						'持续<span class="Jcont">'+convert(varchar(10),@Value3)+'</span>天访问总数超过'+convert(varchar(10),@Value5)+'次',
+              						concat('持续<span class="Jcont">',cast(@Value3 as string),'</span>天访问总数超过',cast(@Value5 as string),'次'),
               						'',@Value3,0,PkiUserId,0,@EndDate
               					from (select PkiUserId,''
                                       					from
                                       						(select PkiUserId,UpdateTime
-                                      						from App_StatisticsPkiDay
+                                      						from App_PkiDay
                                       						where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and LoginNum >= @Value5) d
                                       					group by PkiUserId
                                       					having count(1) >= @Value3) u
-              					where not exists(select * from App_WarnAudit w where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = dateadd(dd,-1,@EndDate) and w.PkiUserId = u.PkiUserId)
+              					where not exists(select * from App_WarnAudit w where w.WarnConfigId = @WarnConfigId and w.SmallType = @SmallType and w.UpdateTime = to_date(date_add(@EndDate,-1)) and w.PkiUserId = u.PkiUserId)
           ENDQUERY
     ENDIF
     IF @Value8 > 0
-        @BeginDate = DATEADD(dd,-@Value6,@EndDate)
+        @BeginDate = DATEADD(@EndDate,-@Value6,)
         @SmallType = 5
         QUERY impala
-            with UserId as (select PkiUserId,convert(varchar(10),UpdateTime,120) as UpdateTime
-                            					from App_StatisticsPkiDay
-                            					where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and IDnum >= @Value8)
             insert into App_WarnAudit(WarnConfigId,WarnType,SmallType,WarnLevel,
             						WarnContent,
             						KeyWord,WarnNumber,UniqueId,PkiUserId,TitleId,UpdateTime)
             					select @WarnConfigId,@WarnType,@SmallType,@WarnLevel,
-            					convert(varchar(10),@Value6)+'天内累计<span class="Jcont">'+convert(varchar(10),count(KeyWord))+'</span>天查询社会人员超过'+convert(varchar(10),@Value8)+'个',
-            					(select KeyWord+',' from UserId where PkiUserId = a.PkiUserId for xml path('')),
-            					count(KeyWord),0,PkiUserId,0,@EndDate
-            					from UserId a
+            					concat(cast(@Value6 as string),'天内累计<span class="Jcont">',cast(count(KeyWord) as string),'</span>天查询社会人员超过',cast(@Value8 as string),'个'),
+            					group_concat(KeyWord,',') KeyWord ,
+            					cast(count(KeyWord) as int),0,PkiUserId,0,@EndDate
+            					from (select PkiUserId,cast(UpdateTime as string) as KeyWord
+                                                                  					from App_PkiDay
+                                                                  					where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and IDnum >= @Value8) a
             					group by PkiUserId
-            					having count(KeyWord) >= @Value7
+            					having count(a.KeyWord) >= @Value7
         ENDQUERY
     ENDIF
     IF @Value9 > 0
         @SmallType = 6
          QUERY impala
-              with UserId as (select PkiUserId,convert(varchar(10),UpdateTime,120) as UpdateTime
-                              					from App_StatisticsPkiDay
-                              					where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and LoginNum >= @Value9)
               insert into App_WarnAudit(WarnConfigId,WarnType,SmallType,WarnLevel,
             						WarnContent,
             						KeyWord,WarnNumber,UniqueId,PkiUserId,TitleId,UpdateTime)
             					select @WarnConfigId,@WarnType,@SmallType,@WarnLevel,
-            					convert(varchar(10),@Value6)+'天内累计<span class="Jcont">'+convert(varchar(10),count(KeyWord))+'</span>天访问总数超过'+convert(varchar(10),@Value9)+'次',
-            					(select KeyWord+',' from #UserId where PkiUserId = a.PkiUserId for xml path('')),
-            					count(KeyWord),0,PkiUserId,0,@EndDate
-            					from UserId a
+            					concat(cast(@Value6 as string),'天内累计<span class="Jcont">',cast(count(KeyWord) as string),'</span>天访问总数超过',cast(@Value9 as string),'次'),
+            					group_concat(KeyWord,',') KeyWord ,
+                                cast(count(KeyWord) as int),0,PkiUserId,0,@EndDate
+            					from (select PkiUserId,cast(UpdateTime as string) as KeyWord
+                                                                    					from App_PkiDay
+                                                                    					where UpdateTime >= @BeginDate and UpdateTime <= @EndDate and LoginNum >= @Value9) a
             					group by PkiUserId
-            					having count(KeyWord) >= @Value7
+            					having count(a.KeyWord) >= @Value7
          ENDQUERY
     ENDIF
     ENDIF
@@ -320,7 +272,7 @@
                                                     cast(count(KeyWord) as int),UniqueId,'',0,@EndDate
                                                     from(select UniqueId,cast(UpdateTime as string) as KeyWord
                                                                                                           from App_DeviceDay
-                                                                                                          where UpdateTime >= to_date(date_add(@EndDate,-3)) and UpdateTime <= @EndDate  and LoginNum >= @Value9) a
+                                                                                                          where UpdateTime >= @BeginDate and UpdateTime <= @EndDate  and LoginNum >= @Value9) a
                                                     group by UniqueId
                                                     having count(a.KeyWord) >= @Value7
             ENDQUERY

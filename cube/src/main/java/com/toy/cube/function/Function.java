@@ -1,7 +1,7 @@
 package com.toy.cube.function;
 
 /**
- * scan exec function run param type : {@link String},{@link Double},{@link Integer}
+ * scan exec function run
  */
 public interface Function {
 

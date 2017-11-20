@@ -14,6 +14,7 @@
         <module>cube</module>
         <module>caterpillar</module>
         <module>monitorView</module>
+        <module>cache</module>
     </modules>
     <packaging>pom</packaging>
 
