@@ -2,7 +2,7 @@
 
 #######################
 [DATASOURCE]
-  impala  jdbc:hive2://192.168.0.133:21050/hnaudit;auth=noSasl  org.apache.hive.jdbc.HiveDriver
+  impala  jdbc:hive2://ip:21050/hnaudit;auth=noSasl  org.apache.hive.jdbc.HiveDriver
 [PARAM]
 	#################################################
 	##			常用输入参数
@@ -132,7 +132,7 @@
           ENDQUERY
     ENDIF
     IF @Value8 > 0
-        @BeginDate = DATEADD(@EndDate,-@Value6,)
+        @BeginDate = DATEADD(@EndDate,-@Value6)
         @SmallType = 5
         QUERY impala
             insert into App_WarnAudit(WarnConfigId,WarnType,SmallType,WarnLevel,
