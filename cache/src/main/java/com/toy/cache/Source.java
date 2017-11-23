@@ -1,6 +1,6 @@
 package com.toy.cache;
 
 @FunctionalInterface
-public interface Source<K, V> {
-    V getData(K k);
+public interface Source<V> {
+    V getData(Object k);
 }

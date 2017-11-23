@@ -13,5 +13,5 @@ public interface Cache<K, V> {
 
     void setTimeout(int timeout);
 
-    void setSource(Source<K, V> source);
+    void setSource(Source<V> source);
 }
