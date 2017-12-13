@@ -8,13 +8,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>core</module>
-        <module>toytelephone</module>
+        <module>phone</module>
         <module>tran</module>
         <module>snipe</module>
         <module>cube</module>
         <module>caterpillar</module>
         <module>monitorView</module>
-        <module>cache</module>
+        <module>localCache</module>
     </modules>
     <packaging>pom</packaging>
 
