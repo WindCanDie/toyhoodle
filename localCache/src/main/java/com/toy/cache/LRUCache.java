@@ -12,7 +12,7 @@ public class LRUCache<K, V> implements Cache<K, V> {
 
     public LRUCache(Source<V> source, int maxCapacity) {
         this.source = source;
-        this.lru = new LRULinkedHashMap(maxCapacity);
+        this.lru = new LRULinkedHashMap<>(maxCapacity);
     }
 
 
@@ -32,6 +32,12 @@ public class LRUCache<K, V> implements Cache<K, V> {
             throw new NullPointerException();
         lru.get(key);
         Node node = getNode(key);
+        synchronized (node) {
+            if (System.currentTimeMillis() - node.createTime > timeout) {
+                remove(key);
+                get(key);
+            }
+        }
         return null;
     }
 
@@ -45,6 +51,12 @@ public class LRUCache<K, V> implements Cache<K, V> {
         Node<K, V> r = null;
         synchronized (lru) {
             r = lru.get(key);
+            if (r == null) {
+                Node<K, V> node = new Node(System.currentTimeMillis(), key);
+                putNode((K) key, node);
+                r = lru.get(key);
+            }
+
         }
         return r;
     }
@@ -57,7 +69,7 @@ public class LRUCache<K, V> implements Cache<K, V> {
 
     @Override
     public void remove(Object key) {
-
+        removeNode(key);
     }
 
     @Override
@@ -77,10 +89,11 @@ public class LRUCache<K, V> implements Cache<K, V> {
 
     private class Node<K, V> {
         final long createTime;
-        K key;
+        final K key;
         QueryTask<V> task;
 
-        private Node(long createTime) {
+        private Node(long createTime, K key) {
+            this.key = key;
             this.createTime = createTime;
             Callable callable = (Callable<V>) () -> (V) source.getData(key);
             this.task = new QueryTask(callable);
