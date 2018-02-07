@@ -8,13 +8,13 @@ package com.toy.toytelephone.rpc;
 public interface RpcEndpoint {
     void onStart();
 
-    void receive();
+    Object receive(Object message);
 
     void receiveAndReply();
 
-    void onConnected();
+    void onConnected(RpcAddress remoteAddress);
 
-    void onDisconnected();
+    void onDisconnected(RpcAddress remoteAddress);
 
     void onNetworkError();
 

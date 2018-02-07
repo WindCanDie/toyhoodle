@@ -31,9 +31,10 @@ public abstract class RpcEnv {
      * @param uri
      * @return RpcEndpointRef
      */
-    public abstract RpcEndpointRef setupEndpointRefByURI(String uri);
+    public abstract RpcEndpointRef getEndpointRefByURI(String uri);
 
-    public abstract RpcEndpointRef setupEndpointRefByURI(RpcAddress asress, String name);
+    public abstract RpcEndpointRef getEndpointRefByURI(RpcAddress asress);
+
 
     public abstract void stop(RpcEndpoint endpoint);
 

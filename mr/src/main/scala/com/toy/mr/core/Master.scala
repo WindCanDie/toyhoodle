@@ -46,25 +46,27 @@ class Master extends UntypedActor {
   override def onReceive(message: Any) {
     message match {
       case MasterMessage.Register(host: String, post: String, core: Int) =>
-        val workerid = s"toy.$host.$post"
-        registerWorker.get(workerid) match {
-          case Some(_) => getSender().tell(Status.Failure(new Exception(s"worker host = $host post = $post has register")), ActorRef.noSender)
-          case None => registerWorker.put(workerid, new WorkerInfo(workerid, core, getSender()))
-        }
+        register(host, post, core)
       case DisassociatedEvent(_, remoteAddress, _) =>
-        print(remoteAddress)
+        val workerid = s"toy.${remoteAddress.host.get}.${remoteAddress.port.get}"
+        registerWorker.remove(workerid)
       case _ => println("not message ha ndle")
     }
   }
 
-  private def register() {
+  private def register(host: String, post: String, core: Int): Unit = {
+    val workerid = s"toy.$host.$post"
+    registerWorker.get(workerid) match {
+      case Some(_) =>
+        getSender().tell(Status.Failure(new Exception(s"worker host = $host post = $post has register")), ActorRef.noSender)
+      case None =>
+        getSender().tell(Status.Success(), ActorRef.noSender)
+    }
   }
 
-  private def heartbeat(): Unit = {
-    registerWorker.foreach(e => {
-      //      Patterns.ask(WorkerMessage.IsSurvive,)
 
-    })
+  private def heartbeat(): Unit = {
+
   }
 }
 

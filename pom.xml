@@ -17,6 +17,7 @@
         <module>localCache</module>
         <module>mr</module>
         <module>mr</module>
+        <module>monitor/agent</module>
     </modules>
     <packaging>pom</packaging>
 

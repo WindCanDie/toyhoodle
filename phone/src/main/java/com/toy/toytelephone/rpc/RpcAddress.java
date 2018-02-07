@@ -12,6 +12,7 @@ public class RpcAddress implements Serializable {
     private final String host;
     private final int port;
     private String toURL;
+    private String name;
 
     public String getHost() {
         return host;
@@ -21,7 +22,9 @@ public class RpcAddress implements Serializable {
         return port;
     }
 
-    private String name;
+    public String getName() {
+        return name;
+    }
 
     public RpcAddress(String host, int post, String name) {
         this.host = host;
@@ -38,5 +41,18 @@ public class RpcAddress implements Serializable {
     @Override
     public String toString() {
         return toURL;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof RpcAddress)
+            return toURL.equals(obj.toString());
+        else
+            return false;
     }
 }

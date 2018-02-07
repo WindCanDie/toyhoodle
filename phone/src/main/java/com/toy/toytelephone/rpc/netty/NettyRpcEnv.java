@@ -75,15 +75,15 @@ public class NettyRpcEnv extends RpcEnv {
     }
 
     @Override
-    public RpcEndpointRef setupEndpointRefByURI(String uri) {
-
+    public RpcEndpointRef getEndpointRefByURI(String uri) {
         return null;
     }
 
     @Override
-    public RpcEndpointRef setupEndpointRefByURI(RpcAddress asress, String name) {
+    public RpcEndpointRef getEndpointRefByURI(RpcAddress asress) {
         return null;
     }
+
 
     @Override
     public void stop(RpcEndpoint endpoint) {

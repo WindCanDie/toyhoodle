@@ -22,8 +22,8 @@ class Worker extends UntypedActor {
   override def preStart(): Unit = {
     val funct = Patterns.ask(masterRef, MasterMessage.Register(Worker.host, Worker.post, core), timeout)
     funct.onComplete {
-      case Success(v) => print("su")
-      case Failure(e) => println(e)
+      case Success(_) => logger.info(s"worker ${Worker.host}:${Worker.post} register success")
+      case Failure(e) => logger.error(e.getLocalizedMessage)
     }
   }
 
